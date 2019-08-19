@@ -1,3 +1,3 @@
 ## Forest
 
-Playaround with machine learning tools.
+Play around with machine learning tools.
