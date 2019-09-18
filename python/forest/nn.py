@@ -27,15 +27,24 @@ class Tensor:
     if self._same_layout(layout):
       return self.shape
     else:
-      if self.layout == 'NCHW':
+      if layout == 'NCHW':
         return nhwc2nchw(self.shape)
-      elif self.layout == 'NHWC':
+      elif layout == 'NHWC':
         return nchw2nhwc(self.shape)
   def gen(self):
     if self.dtype == 'uint8':
       self.ndarray = np.random.uniform(low=0, high=255, size=self.shape).astype(self.dtype)
     else:
       self.ndarray = np.random.uniform(low=-1, high=1, size=self.shape).astype(self.dtype)
+  def dataAs(self, layout: str):
+    self._supported_layout(layout)
+    if self._same_layout(layout):
+      return self.ndarray
+    else:
+      if layout == 'NCHW':
+        return nhwc2nchw(self.ndarray)
+      elif layout == 'NHWC':
+        return nchw2nhwc(self.ndarray)
 
 class Model:
   def __init__(self, name: str, dtype: str, layout = 'NCHW', path = None):
@@ -54,7 +63,7 @@ class Model:
       assert "Unsupported tensor set {}".format(tensor_type)
 
   def add(self, ttype: str, t):
-    assert isinstance(t, Tensor)
+    assert isinstance(t, Tensor) and t.layout == self.layout
     if ttype in ['input', 'i']:
       self.inputs.append(t)
     elif ttype in ['output', 'o']:
@@ -74,6 +83,7 @@ class Model:
   def genInput(self):
     for i in self.inputs: i.gen()
   def loadInput(self):
+    # FIXME
     for i in range(0, len(self.inputs)):
       self.inputs[i].ndarray = load(self.inputs[i].shape,
                                     'input.'+str(i)+'.txt',
@@ -81,7 +91,12 @@ class Model:
   def store(self, ttype: str):
     tensors = self.getTensors(ttype)
     for i in range(0, len(tensors)):
-      store(tensors[i].ndarray, ttype+'.'+str(i)+'.txt')
+      tensor = tensors[i]
+      if self.layout == 'NCHW':
+        ndarray = nchw2nhwc(tensor.ndarray)
+      elif self.layout == 'NHWC':
+        ndarray = tensor.ndarray
+      store(ndarray, ttype+'.'+str(i)+'.txt')
 
   def clear(self):
     self.inputs = list()
@@ -93,7 +108,7 @@ def nhwc2nchw(shape_or_ndarray):
     if len(shape) == 4:
       return (shape[0], shape[3], shape[1], shape[2])
     elif len(shape) == 2:
-      return (shape[0], shape[1])
+      return (shape[1], shape[0])
     else:
       return shape
   elif isinstance(shape_or_ndarray, np.ndarray):
@@ -111,7 +126,7 @@ def nchw2nhwc(shape_or_ndarray):
   if isinstance(shape_or_ndarray, (list, tuple)):
     shape = shape_or_ndarray
     if len(shape) == 4:
-      return (shape[0], shape[2], shape[1], shape[3])
+      return (shape[0], shape[2], shape[3], shape[1])
     elif len(shape) == 2:
       return (shape[1], shape[0])
     else:
@@ -137,7 +152,7 @@ def oihw2hwoi(shape):
 def store(ndarray, fname):
   # caller shall handle layout transform
   ndarray = ndarray.reshape((np.prod(ndarray.shape),))
-  if ndarray.dtype == 'float64':
+  if ndarray.dtype in ['float64', 'float32']:
     np.savetxt(fname, ndarray, fmt='%.15f')
   else:
     np.savetxt(fname, ndarray, fmt='%i')
