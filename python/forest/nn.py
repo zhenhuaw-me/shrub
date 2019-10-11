@@ -1,7 +1,7 @@
 import numpy as np
 
 class Tensor:
-  def __init__(self, name: str, shape: tuple, dtype: str, layout = 'NCHW',
+  def __init__(self, name: str, shape: tuple, dtype: str, layout = 'NHWC',
                src_layout = 'NHWC', ndarray = None):
     self.name = name
     self.dtype = dtype
@@ -47,7 +47,7 @@ class Tensor:
         return nchw2nhwc(self.ndarray)
 
 class Model:
-  def __init__(self, name: str, dtype: str, layout = 'NCHW', path = None):
+  def __init__(self, name: str, dtype: str, layout = 'NHWC', path = None):
     self.name = name
     self.dtype = dtype
     self.layout = layout
@@ -107,16 +107,16 @@ def nhwc2nchw(shape_or_ndarray):
     shape = shape_or_ndarray
     if len(shape) == 4:
       return (shape[0], shape[3], shape[1], shape[2])
-    elif len(shape) == 2:
-      return (shape[1], shape[0])
+    # elif len(shape) == 2:
+    #   return (shape[1], shape[0])
     else:
       return shape
   elif isinstance(shape_or_ndarray, np.ndarray):
     nda = shape_or_ndarray
     if len(nda.shape) == 4:
       return nda.transpose(0, 3, 1, 2)
-    elif len(nda.shape) == 2:
-      return nda.transpose(1, 0)
+    # elif len(nda.shape) == 2:
+    #   return nda.transpose(1, 0)
     else:
       return nda
   else:
@@ -127,16 +127,16 @@ def nchw2nhwc(shape_or_ndarray):
     shape = shape_or_ndarray
     if len(shape) == 4:
       return (shape[0], shape[2], shape[3], shape[1])
-    elif len(shape) == 2:
-      return (shape[1], shape[0])
+    # elif len(shape) == 2:
+    #   return (shape[1], shape[0])
     else:
       return shape
   elif isinstance(shape_or_ndarray, np.ndarray):
     nda = shape_or_ndarray
     if len(nda.shape) == 4:
       return nda.transpose(0, 2, 3, 1)
-    elif len(nda.shape) == 2:
-      return nda.transpose(1, 0)
+    # elif len(nda.shape) == 2:
+    #   return nda.transpose(1, 0)
     else:
       return nda
   else:
