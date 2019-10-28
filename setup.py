@@ -6,8 +6,8 @@ with open(os.path.join(here, 'README.md'), 'r') as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='bush',
-    version='0.0.1',
+    name='shrub',
+    version='0.0.1-alpha0',
     description="Toys to play around with machine learning",
     packages=setuptools.find_packages(),
     classifiers=[
@@ -32,10 +32,10 @@ setuptools.setup(
     author_email='i@jackwish.net',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url="https://jackwish.net/bush",
+    url="https://jackwish.net/shrub",
 
     project_urls={
-        'Bug Reports': 'https://github.com/jackwish/bush/issues',
-        'Source': 'https://github.com/jackwish/bush',
+        'Bug Reports': 'https://github.com/jackwish/shrub/issues',
+        'Source': 'https://github.com/jackwish/shrub',
     },
 )
