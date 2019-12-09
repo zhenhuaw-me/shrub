@@ -1,6 +1,12 @@
 import numpy as np
 
 class Tensor:
+  """The Tensor class to hold semantic and data.
+
+  Class `Tensor` include functionalities like:
+  * Semantics for a tensor, name, shape, layout and etc.
+  * Data in Numpy.
+  """
   def __init__(self, name: str, shape: tuple, dtype: str, layout = 'NHWC',
                src_layout = 'NHWC', ndarray = None):
     self.name = name
@@ -18,33 +24,34 @@ class Tensor:
       elif self.layout == 'NHWC':
         self.shape = nchw2nhwc(shape)
         self.ndarray = nchw2nhwc(ndarray)
+
   def _supported_layout(self, layout: str):
-    assert layout == 'NCHW' or layout == 'NHWC'
+      if layout not in ['NCHW', 'NHWC']:
+          raise ValueError("Unsupported layout: %s!".format(layout))
   def _same_layout(self, layout: str):
     return (layout == self.layout)
-  def shapeAs(self, layout: str):
+
+  def _convert_to_layout(self, shape_or_ndarray, layout: str):
     self._supported_layout(layout)
     if self._same_layout(layout):
-      return self.shape
+      return shape_or_ndarray
     else:
       if layout == 'NCHW':
-        return nhwc2nchw(self.shape)
+        return nhwc2nchw(shape_or_ndarray)
       elif layout == 'NHWC':
-        return nchw2nhwc(self.shape)
+        return nchw2nhwc(shape_or_ndarray)
+      else:
+        raise ValueError("Shall not reach!")
+  def shapeAs(self, layout: str):
+    return self._convert_to_layout(self.shape, layout)
+  def dataAs(self, layout: str):
+    return self._convert_to_layout(self.ndarray, layout)
+
   def gen(self):
     if self.dtype == 'uint8':
       self.ndarray = np.random.uniform(low=0, high=255, size=self.shape).astype(self.dtype)
     else:
       self.ndarray = np.random.uniform(low=-1, high=1, size=self.shape).astype(self.dtype)
-  def dataAs(self, layout: str):
-    self._supported_layout(layout)
-    if self._same_layout(layout):
-      return self.ndarray
-    else:
-      if layout == 'NCHW':
-        return nhwc2nchw(self.ndarray)
-      elif layout == 'NHWC':
-        return nchw2nhwc(self.ndarray)
 
 class Model:
   def __init__(self, name: str, dtype: str, layout = 'NHWC', path = None):
@@ -107,16 +114,12 @@ def nhwc2nchw(shape_or_ndarray):
     shape = shape_or_ndarray
     if len(shape) == 4:
       return (shape[0], shape[3], shape[1], shape[2])
-    # elif len(shape) == 2:
-    #   return (shape[1], shape[0])
     else:
       return shape
   elif isinstance(shape_or_ndarray, np.ndarray):
     nda = shape_or_ndarray
     if len(nda.shape) == 4:
       return nda.transpose(0, 3, 1, 2)
-    # elif len(nda.shape) == 2:
-    #   return nda.transpose(1, 0)
     else:
       return nda
   else:
@@ -127,16 +130,12 @@ def nchw2nhwc(shape_or_ndarray):
     shape = shape_or_ndarray
     if len(shape) == 4:
       return (shape[0], shape[2], shape[3], shape[1])
-    # elif len(shape) == 2:
-    #   return (shape[1], shape[0])
     else:
       return shape
   elif isinstance(shape_or_ndarray, np.ndarray):
     nda = shape_or_ndarray
     if len(nda.shape) == 4:
       return nda.transpose(0, 2, 3, 1)
-    # elif len(nda.shape) == 2:
-    #   return nda.transpose(1, 0)
     else:
       return nda
   else:
