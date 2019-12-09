@@ -1,3 +1,4 @@
+import numpy as np
 import logging
 from . import nn
 
@@ -25,7 +26,18 @@ def run(model, dumpOutput = False, logLevel = logging.DEBUG):
             interp.set_tensor(idetails[i]['index'], idata)
     interp.invoke()
     if is_nn_Model:
+        outs = []
         for i in range(len(model.outputs)):
-            model.outputs[i].ndarray = interp.get_tensor(odetails[i]['index'])
+            out = interp.get_tensor(odetails[i]['index'])
             if dumpOutput:
-                nn.store(model.outputs[i].ndarray, "tflite."+str(i)+".txt")
+                nn.store(out, "tflite."+str(i)+".txt")
+            outs.append(out)
+        for i in range(len(model.outputs)):
+            if model.outputs[i].ndarray is not None:
+                msg = "Output %d mismatch!" % i
+                if model.dtype == 'uint8':
+                    np.testing.assert_allclose(model.outputs[i].dataAs('NHWC'),
+                                               outs[i], err_msg=msg)
+                else:
+                    np.testing.assert_allclose(model.outputs[i].dataAs('NHWC'),
+                                               outs[i], atol=1e-3, rtol=1e-3, err_msg=msg)
