@@ -103,4 +103,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-python/tflite
+
+# models
+*.pb
+*.tflite
