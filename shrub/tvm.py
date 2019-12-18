@@ -46,12 +46,7 @@ class TargetProvider:
     a53_aarch64_target = a53_target + ' -target=aarch64-none-linux-gnueabi'
     a53_arm32_target = a53_target + ' -target=armv7a-none-linux-gnueabihf'
 
-    if key == 'imx6':
-      self.target = arm_target + ' -target=armv7l-none-linux-gnueabihf -mcpu=cortex-a9'
-      self.host = self.target
-      self.rpc = RpcInfo(key, '/data/wzh/rpc.tvm/arm32/')
-      os.environ['TVM_NDK_CC'] = toolchain_root + '/arm-linux-gnueabihf-4.9-glibc-2.20/bin/arm-linux-gnueabihf-g++'
-    elif key in ['rasp', 'dmlc', 'rasp.pool']:
+    f key in ['rasp', 'dmlc', 'rasp.pool']:
       self.target = a53_aarch64_target
       self.host = self.target
       if key == 'rasp.pool':
@@ -66,23 +61,11 @@ class TargetProvider:
       self.host = self.target
       self.rpc = RpcInfo(key, '/home/wzh/rpc.tvm/arm32/')
       os.environ['TVM_NDK_CC'] = 'arm-linux-gnueabihf-g++'
-    elif key in ['pc2', 'adreno']:
-      self.target = 'opencl -device=intel_gpu' if key == 'pc2' else 'opencl -device=adreno'
+    elif key == 'pc1':
+      self.target = 'opencl -device=mali'
       self.host = 'llvm'
-      self.rpc = RpcInfo('pc2', '/home/wzh/tvm/rpc.tvm/')
+      self.rpc = RpcInfo('pc1', '/home/wzh/tvm/rpc.tvm/')
       os.environ['TVM_NDK_CC'] = 'g++'
-    elif key in 'mtk2712m':
-      cpu_tgt = arm_target + ' -target=aarch64-poky-linux-gnueabi'
-      if self.core.type == 0:
-        self.target = 'opencl -device=mali'
-        self.host = cpu_tgt
-      else:
-        core_name = 'a72' if self.core.type == 1 else 'a35'
-        self.target = cpu_tgt + ' -mcpu=cortex-' + core_name
-        self.host = self.target
-      self.rpc = RpcInfo(key, '/data/wzh/rpc.tvm/')
-      os.environ['TVM_NDK_CC'] = "/opt/fsl-imx-wayland/4.14-sumo/sysroots/x86_64-pokysdk-linux/usr/bin/aarch64-poky-linux/aarch64-poky-linux-g++"
-      self.ndk_opts += ['--sysroot=/opt/fsl-imx-wayland/4.14-sumo/sysroots/aarch64-poky-linux',]
     elif key == 'llvm':
       self.target = key
       self.host = self.target
@@ -118,12 +101,12 @@ class Deployables:
       self.lib.export_library(self.path_so, ndk.create_shared,
                               options= target.ndk_opts)
     else: self.lib.export_library(self.path_so)
-    # if 'llvm' in target.target:
-    #   self.lib.save(os.path.join(export_path, 'lib.ll'), 'll')
-    #   self.lib.save(os.path.join(export_path, 'lib.asm'), 'asm')
-    #   self.lib.save(os.path.join(export_path, 'lib.o'), 'o')
-    # elif 'opencl' in target.target:
-    #   self.lib.imported_modules[0].save(os.path.join(export_path, 'lib.cl'), 'cl')
+    if 'llvm' in target.target:
+      self.lib.save(os.path.join(export_path, 'lib.ll'), 'll')
+      self.lib.save(os.path.join(export_path, 'lib.asm'), 'asm')
+      self.lib.save(os.path.join(export_path, 'lib.o'), 'o')
+    elif 'opencl' in target.target:
+      self.lib.imported_modules[0].save(os.path.join(export_path, 'lib.cl'), 'cl')
 
     if not IsUpstream:
       path_json = os.path.join(export_path, 'deploy_graph.json')
