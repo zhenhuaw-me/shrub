@@ -1,4 +1,5 @@
-import setuptools, os
+import setuptools
+import os
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -24,9 +25,9 @@ setuptools.setup(
         'Operating System :: OS Independent',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
     ],
-    keywords=['machine learning',],
+    keywords=['machine learning', ],
     python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
-    install_requires=[ 'flatbuffers',],
+    install_requires=['flatbuffers', ],
 
     author='王振华（Zhenhua WANG）',
     author_email='i@jackwish.net',

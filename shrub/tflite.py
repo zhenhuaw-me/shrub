@@ -2,7 +2,8 @@ import numpy as np
 import logging
 from . import nn
 
-def run(model, dumpOutput = False, logLevel = logging.DEBUG):
+
+def run(model, dumpOutput=False, logLevel=logging.DEBUG):
     """ Run TFLite, optionally load/store data."""
     try:
         from tensorflow.lite.python import interpreter as tflite_interp
@@ -13,7 +14,9 @@ def run(model, dumpOutput = False, logLevel = logging.DEBUG):
     logging.log(logLevel, "Running TFLite...")
     model_path = model.path if is_nn_Model else model
     if not model_path.endswith(model_path):
-        logging.warn("%s is not a valid TFLite model path, skip..." % model_path)
+        logging.warn(
+            "%s is not a valid TFLite model path, skip..." %
+            model_path)
 
     interp = tflite_interp.Interpreter(model_path=model_path)
     interp.allocate_tensors()
@@ -30,7 +33,7 @@ def run(model, dumpOutput = False, logLevel = logging.DEBUG):
         for i in range(len(model.outputs)):
             out = interp.get_tensor(odetails[i]['index'])
             if dumpOutput:
-                nn.store(out, "tflite."+str(i)+".txt")
+                nn.store(out, "tflite." + str(i) + ".txt")
             outs.append(out)
         for i in range(len(model.outputs)):
             if model.outputs[i].ndarray is not None:
@@ -39,5 +42,5 @@ def run(model, dumpOutput = False, logLevel = logging.DEBUG):
                     np.testing.assert_allclose(model.outputs[i].dataAs('NHWC'),
                                                outs[i], err_msg=msg)
                 else:
-                    np.testing.assert_allclose(model.outputs[i].dataAs('NHWC'),
-                                               outs[i], atol=1e-3, rtol=1e-3, err_msg=msg)
+                    np.testing.assert_allclose(model.outputs[i].dataAs(
+                        'NHWC'), outs[i], atol=1e-3, rtol=1e-3, err_msg=msg)
