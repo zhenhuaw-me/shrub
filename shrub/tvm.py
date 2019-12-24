@@ -56,10 +56,15 @@ class TargetProvider:
             raise ValueError("Unknow target name %s", key)
 
 
-class Deployables:
-    def build(self, target, model, net, params, dumpIR=False, opt_level=3):
+class Deployable:
+    def build(self, target, model, net, params, record=None,
+              dumpIR=False):
         logging.info("Compiling...")
-        with relay.build_config(opt_level=opt_level):
+        if record and record.pick_best():
+            with autotvm.apply_history_best(record.best):
+                self.graph, self.lib, self.params = relay.build(
+                    net, target=target.target, target_host=target.host, params=params)
+        else:
             self.graph, self.lib, self.params = relay.build(
                 net, target=target.target, target_host=target.host, params=params)
 
@@ -181,7 +186,7 @@ class Tuner:
 
             return os.path.exists(self.best)
 
-    def __init__(self, name, target, n_trial=100, early_stopping=50):
+    def __init__(self, name, target, n_trial=10, early_stopping=50):
         self.n_trial = n_trial
         self.early_stopping = early_stopping
         self.record = self.Record(target.rpc.key, name)
