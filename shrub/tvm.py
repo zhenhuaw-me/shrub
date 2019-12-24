@@ -3,10 +3,12 @@ import os
 import logging
 import numpy as np
 from tvm import autotvm, relay
+from tvm.relay import testing
 import tvm.contrib.graph_runtime as runtime
 from tvm.autotvm.tuner import XGBTuner
 
 logger = logging.getLogger('tuning')
+
 
 class TargetProvider:
 
@@ -69,7 +71,7 @@ class Deployables:
         if not os.path.exists(export_path):
             os.makedirs(export_path)
 
-        self.path_so = os.path.join(export_path, 'deploy_lib.so')
+        self.path_so = os.path.join(export_path, 'lib.so')
         if target.rpc.path:
             from tvm.contrib import ndk
             self.lib.export_library(self.path_so, ndk.create_shared,
@@ -84,7 +86,7 @@ class Deployables:
             self.lib.imported_modules[0].save(
                 os.path.join(export_path, 'lib.cl'), 'cl')
 
-        path_params = os.path.join(export_path, 'deploy_param.params')
+        path_params = os.path.join(export_path, 'param.params')
         with open(path_params, 'wb') as fo:
             fo.write(relay.save_param_dict(self.params))
 
@@ -163,68 +165,88 @@ class Tuner:
             self.best = "%s/%s.log" % (dname, fname)
             self.library = self.best + '.library'
             self.filter = self.best + '.filter'
-            if not os.path.exists(dname): os.makedirs(dname)
+            if not os.path.exists(dname):
+                os.makedirs(dname)
 
         def pick_best(self, library=None):
             lib = self.library if library is None else library
             if os.path.exists(lib):
                 autotvm.record.pick_best(lib, self.best)
+
+            if os.path.exists(self.filter):
+                with open(self.best, 'a') as out_file:
+                    with open(self.filter, 'r') as in_file:
+                        for line in in_file:
+                            out_file.write(line)
+
             return os.path.exists(self.best)
 
-    def __init__(self, name, target, options=None):
+    def __init__(self, name, target, n_trial=100, early_stopping=50):
+        self.n_trial = n_trial
+        self.early_stopping = early_stopping
         self.record = self.Record(target.rpc.key, name)
-
         if target.rpc.path:
-            builder=autotvm.LocalBuilder(build_func='ndk', timeout=100)
-            runner=autotvm.RPCRunner(target.rpc.key, host=target.tracker.ip,
-                                     port=target.tracker.port,
-                                     n_parallel=1, number=30, timeout=100)
+            builder = autotvm.LocalBuilder(build_func='ndk', timeout=100)
+            runner = autotvm.RPCRunner(target.rpc.key, host=target.tracker.ip,
+                                       port=target.tracker.port,
+                                       n_parallel=1, number=30, timeout=100)
         else:
-            builder=autotvm.LocalBuilder(build_func='default', timeout=100)
-            runner=autotvm.LocalRunner(number=30, timeout=100)
+            builder = autotvm.LocalBuilder(build_func='default', timeout=100)
+            runner = autotvm.LocalRunner(number=30, timeout=100)
         self.measure_option = autotvm.measure_option(builder, runner)
-        self.n_trial = 10
-        self.early_stopping = 5
-
-    def tune_tasks(self, tasks):
-        for i, tsk in enumerate(tasks):
-            prefix = "[Task %2d/%2d] " %(i+1, len(tasks))
-            tuner_obj = XGBTuner(tsk, loss_type='rank', feature_type="knob")
-            total = min(self.n_trial, len(tsk.config_space))
-            tuner_obj.tune(n_trial=total,
-                           early_stopping=self.early_stopping,
-                           measure_option=self.measure_option,
-                           callbacks=[
-                               autotvm.callback.progress_bar(total, prefix=prefix),
-                               autotvm.callback.log_to_file(self.record.library)])
-
 
     def tune(self, net, params, target):
-        tuning_symbols=(relay.op.nn.conv2d, relay.op.nn.dense)
-        tasks = autotvm.task.extract_from_program(net['main'], ops=tuning_symbols,
-                                                  params=params,
-                                                  target_host=target.host,
-                                                  target=target.target)
-                                                  # template_keys=template_key)
-        # if filter_log_file: tasks = filter_tasks(tasks, filter_log_file)
+        tuning_symbols = (relay.op.nn.conv2d, relay.op.nn.dense)
+        tasks = autotvm.task.extract_from_program(
+            net['main'],
+            ops=tuning_symbols,
+            params=params,
+            target_host=target.host,
+            target=target.target)
+        # template_keys=template_key)
+        tasks = self.filter_tasks(tasks)
 
-        self.tune_tasks(tasks)
+        for i, tsk in enumerate(tasks):
+            prefix = "[Task %2d/%2d] " % (i + 1, len(tasks))
+            tuner_obj = XGBTuner(tsk, loss_type='rank', feature_type="knob")
+            total = min(self.n_trial, len(tsk.config_space))
+            tuner_obj.tune(
+                n_trial=total,
+                early_stopping=self.early_stopping,
+                measure_option=self.measure_option,
+                callbacks=[
+                    autotvm.callback.progress_bar(
+                        total,
+                        prefix=prefix),
+                    autotvm.callback.log_to_file(
+                        self.record.library)])
 
         self.record.pick_best()
 
-        # # Append pre-tuned parameters to log file.
-        # if filter_log_file:
-        #     with open(log_file, 'a') as out_file:
-        #         with open(filter_log_file, 'r') as in_file:
-        #             for line in in_file: out_file.write(line)
+    def filter_tasks(self, tasks):
+        if os.path.exists(self.record.filter):
+            filter = autotvm.apply_history_best(self.record.filter)
+            filtered_tasks = []
+            for task in tasks:
+                if not filter._query_inside(task.target, task.workload):
+                    filtered_tasks.append(task)
+            return filtered_tasks
+        else:
+            return tasks
 
 
-
-# def filter_tasks(tasks, filter_log):
-#     filter = autotvm.apply_history_best(filter_log)
-#     filtered_tasks = []
-#     for task in tasks:
-#         if not filter._query_inside(task.target, task.workload):
-#             logger.info("No config for task:", task)
-#             filtered_tasks.append(task)
-#     return filtered_tasks
+def get_model(name, dtype, useLayout, batch_size=1):
+    """Get the symbol definition and random weight of a network"""
+    builtin_workload = { 'resnet-18': relay.testing.resnet.get_workload,
+                         'mobilenet': relay.testing.mobilenet.get_workload,
+                         'squeezenet': relay.testing.squeezenet.get_workload,
+                       }
+    assert name in builtin_workload
+    from .nn import Model, Tensor
+    model = Model(name, dtype, useLayout)
+    model.add('i', Tensor('data', (1, 224, 224, 3), dtype, layout=useLayout))
+    model.add('o', Tensor('output', (1, 1000), dtype, layout=useLayout))
+    net, params = builtin_workload[name](batch_size=batch_size,
+                                         image_shape=model.inputs[0].shapeAs(useLayout)[1:],
+                                         layout=useLayout)
+    return net, params, model
