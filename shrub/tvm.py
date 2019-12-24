@@ -1,79 +1,55 @@
 import tvm
 import os
 import logging
-import nnvm
 import numpy as np
 from tvm import autotvm, relay
 import tvm.contrib.graph_runtime as runtime
+from tvm.autotvm.tuner import XGBTuner
 
-
-class Tracker:
-    def __init__(self, ip='11.163.182.45', port=20093):
-        self.ip = ip
-        self.port = port
-
-    def asStr(self):
-        return self.ip + ':' + str(self.port)
-
-    def asTuple(self):
-        return (self.ip, self.port)
-
-
-class RpcInfo:
-    def __init__(self, key, path):
-        self.key = key
-        self.path = path
-
-
-class ThreadMod:
-    def __init__(self, type, num):
-        self.type = type
-        self.num = num
-
-    def asTuple(self):
-        return (self.type, self.num)
-
+logger = logging.getLogger('tuning')
 
 class TargetProvider:
+
+    class Tracker:
+        def __init__(self, ip='11.163.182.45', port=20093):
+            self.ip = ip
+            self.port = port
+
+        def asTuple(self):
+            return (self.ip, self.port)
+
+    class RpcInfo:
+        def __init__(self, key, path):
+            self.key = key
+            self.path = path
+
+    class ThreadMod:
+        def __init__(self, type, num):
+            self.type = type
+            self.num = num
+
+        def asTuple(self):
+            return (self.type, self.num)
+
     def __init__(self, key, core_type=1, core_num=1):
-        self.tracker = Tracker()
-        self.core = ThreadMod(core_type, core_num)
-        self.target = 'llvm'
-        self.host = 'llvm'
+        self.tracker = self.Tracker()
+        self.core = self.ThreadMod(core_type, core_num)
         self.ndk_opts = ['-shared', '-fPIC', ]
         self._get_target(key)
 
     def _get_target(self, key):
-        toolchain_root = '/home/wzh/toolchain/os/'
-        arm_target = 'llvm -device=arm_cpu -mattr=+neon'
-        a53_target = arm_target + ' -mcpu=cortex-a53'
-        a53_aarch64_target = a53_target + ' -target=aarch64-none-linux-gnueabi'
-        a53_arm32_target = a53_target + ' -target=armv7a-none-linux-gnueabihf'
+        arm_device = 'llvm -device=arm_cpu -mattr=+neon'
+        aarch64_target = '-target=aarch64-none-linux-gnueabi'
 
-        if key in ['rasp', 'dmlc', 'rasp.pool']:
-            self.target = a53_aarch64_target
+        if key in ['rasp', 'dmlc']:
+            self.target = arm_device + ' ' + aarch64_target + ' -mcpu=cortex-a53'
             self.host = self.target
-            if key == 'rasp.pool':
-                self.rpc = RpcInfo(key, '/home/ubuntu/rpc.tvm/pool/')
-            elif key == 'dmlc':
-                self.rpc = RpcInfo(key, '/home/wzh/rpc.tvm/dmlc/')
-            else:
-                self.rpc = RpcInfo(key, '/home/wzh/rpc.tvm/aarch64/')
+            self.rpc = self.RpcInfo(key, '/home/wzh/rpc.tvm/')
             os.environ['TVM_NDK_CC'] = 'aarch64-linux-gnu-g++'
-        elif key == 'rasp0.arm32':
-            self.target = a53_arm32_target
-            self.host = self.target
-            self.rpc = RpcInfo(key, '/home/wzh/rpc.tvm/arm32/')
-            os.environ['TVM_NDK_CC'] = 'arm-linux-gnueabihf-g++'
-        elif key == 'pc1':
-            self.target = 'opencl -device=intel_gpu'
-            self.host = 'llvm'
-            self.rpc = RpcInfo('pc1', '/home/wzh/tvm/rpc.tvm/')
-            os.environ['TVM_NDK_CC'] = 'g++'
         elif key == 'llvm':
             self.target = key
             self.host = self.target
-            self.rpc = RpcInfo(key, None)
+            self.rpc = self.RpcInfo(key, None)
         else:
             raise ValueError("Unknow target name %s", key)
 
@@ -110,7 +86,7 @@ class Deployables:
 
         path_params = os.path.join(export_path, 'deploy_param.params')
         with open(path_params, 'wb') as fo:
-            fo.write(nnvm.compiler.save_param_dict(self.params))
+            fo.write(relay.save_param_dict(self.params))
 
 
 class RuntimeWrapper:
@@ -182,3 +158,73 @@ class RuntimeWrapper:
 
 
 class Tuner:
+    class Record:
+        def __init__(self, dname, fname):
+            self.best = "%s/%s.log" % (dname, fname)
+            self.library = self.best + '.library'
+            self.filter = self.best + '.filter'
+            if not os.path.exists(dname): os.makedirs(dname)
+
+        def pick_best(self, library=None):
+            lib = self.library if library is None else library
+            if os.path.exists(lib):
+                autotvm.record.pick_best(lib, self.best)
+            return os.path.exists(self.best)
+
+    def __init__(self, name, target, options=None):
+        self.record = self.Record(target.rpc.key, name)
+
+        if target.rpc.path:
+            builder=autotvm.LocalBuilder(build_func='ndk', timeout=100)
+            runner=autotvm.RPCRunner(target.rpc.key, host=target.tracker.ip,
+                                     port=target.tracker.port,
+                                     n_parallel=1, number=30, timeout=100)
+        else:
+            builder=autotvm.LocalBuilder(build_func='default', timeout=100)
+            runner=autotvm.LocalRunner(number=30, timeout=100)
+        self.measure_option = autotvm.measure_option(builder, runner)
+        self.n_trial = 10
+        self.early_stopping = 5
+
+    def tune_tasks(self, tasks):
+        for i, tsk in enumerate(tasks):
+            prefix = "[Task %2d/%2d] " %(i+1, len(tasks))
+            tuner_obj = XGBTuner(tsk, loss_type='rank', feature_type="knob")
+            total = min(self.n_trial, len(tsk.config_space))
+            tuner_obj.tune(n_trial=total,
+                           early_stopping=self.early_stopping,
+                           measure_option=self.measure_option,
+                           callbacks=[
+                               autotvm.callback.progress_bar(total, prefix=prefix),
+                               autotvm.callback.log_to_file(self.record.library)])
+
+
+    def tune(self, net, params, target):
+        tuning_symbols=(relay.op.nn.conv2d, relay.op.nn.dense)
+        tasks = autotvm.task.extract_from_program(net['main'], ops=tuning_symbols,
+                                                  params=params,
+                                                  target_host=target.host,
+                                                  target=target.target)
+                                                  # template_keys=template_key)
+        # if filter_log_file: tasks = filter_tasks(tasks, filter_log_file)
+
+        self.tune_tasks(tasks)
+
+        self.record.pick_best()
+
+        # # Append pre-tuned parameters to log file.
+        # if filter_log_file:
+        #     with open(log_file, 'a') as out_file:
+        #         with open(filter_log_file, 'r') as in_file:
+        #             for line in in_file: out_file.write(line)
+
+
+
+# def filter_tasks(tasks, filter_log):
+#     filter = autotvm.apply_history_best(filter_log)
+#     filtered_tasks = []
+#     for task in tasks:
+#         if not filter._query_inside(task.target, task.workload):
+#             logger.info("No config for task:", task)
+#             filtered_tasks.append(task)
+#     return filtered_tasks
