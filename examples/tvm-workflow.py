@@ -4,12 +4,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('tuning')
 import tvm
 from tvm import autotvm
-import shrub, models
+import shrub
 
 ################# XXX update these env accordingly XXX #############
 
-target_name = 'dmlc'
-network = 'conv'
+target_name = 'cpu'
+network = 'mobilenet'
 useLayout = 'NCHW'
 # useLayout = 'NHWC'
 dtype = 'float32'
@@ -20,11 +20,10 @@ bigLITTLE = 1
 ####################################################################
 
 target = shrub.tvm.TargetProvider(target_name, bigLITTLE, useCores)
-# net, params, model = shrub.tvm.get_model(network, dtype, useLayout)
-net, params, model = models.get(network, dtype, useLayout)
+net, params, model = shrub.tvm.get_model(network, dtype, useLayout)
 
 tuner = shrub.tvm.Tuner(model.name, target)
-# tuner.tune(net, params, target)
+tuner.tune(net, params, target)
 dep = shrub.tvm.Deployable()
 dep.build(target, model, net, params, tuner.record)
 dep.export(target)

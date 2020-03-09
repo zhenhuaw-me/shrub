@@ -13,7 +13,7 @@ logger = logging.getLogger('tuning')
 class TargetProvider:
 
     class Tracker:
-        def __init__(self, ip='11.163.182.45', port=20093):
+        def __init__(self, ip='0.0.0.0', port=9190):
             self.ip = ip
             self.port = port
 
@@ -48,6 +48,11 @@ class TargetProvider:
             self.host = self.target
             self.rpc = self.RpcInfo(key, '/home/wzh/rpc.tvm/')
             os.environ['TVM_NDK_CC'] = 'aarch64-linux-gnu-g++'
+        if key in ['cpu',]:
+            self.target = 'llvm -target=x86_64-none-linux-gnueabi'
+            self.host = self.target
+            self.rpc = self.RpcInfo(key, '/home/scratch.zhenhuaw_sw/tvm/rpc/cpu/')
+            os.environ['TVM_NDK_CC'] = 'g++'
         elif key == 'llvm':
             self.target = key
             self.host = self.target
@@ -123,7 +128,7 @@ class RuntimeWrapper:
             module.set_input(**rparams)
         else:
             ctx = tvm.context(str(target.target), 0)
-            rlib = tvm.module.load(deployables.path_so)
+            rlib = tvm.runtime.load_module(deployables.path_so)
             module = runtime.create(deployables.graph, rlib, ctx)
             for i in range(0, len(model.inputs)):
                 module.set_input(model.inputs[i].name,
@@ -201,7 +206,7 @@ class Tuner:
         self.measure_option = autotvm.measure_option(builder, runner)
 
     def tune(self, net, params, target):
-        tuning_symbols = (relay.op.nn.conv2d, relay.op.nn.dense)
+        tuning_symbols = (relay.op.get('nn.conv2d'), relay.op.get('nn.dense'))
         tasks = autotvm.task.extract_from_program(
             net['main'],
             ops=tuning_symbols,
@@ -213,7 +218,7 @@ class Tuner:
 
         for i, tsk in enumerate(tasks):
             prefix = "[Task %2d/%2d] " % (i + 1, len(tasks))
-            tuner_obj = XGBTuner(tsk, loss_type='rank', feature_type="knob")
+            tuner_obj = XGBTuner(tsk, loss_type='rank')
             total = min(self.n_trial, len(tsk.config_space))
             tuner_obj.tune(
                 n_trial=total,
