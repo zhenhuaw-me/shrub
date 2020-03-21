@@ -6,3 +6,5 @@ if [ "$(uname -s)" = "Darwin" ]; then
 else
   export PYTHONPATH=${PYTHONPATH}:$(dirname $(dirname $(readlink -f $0)))
 fi
+
+echo $PYTHONPATH

@@ -8,7 +8,7 @@ with open(os.path.join(here, 'README.md'), 'r') as fh:
 
 setuptools.setup(
     name='shrub',
-    version='0.0.1-alpha0',
+    version='0.0.1',
     description="Toys to play around with machine learning",
     packages=setuptools.find_packages(),
     classifiers=[
@@ -27,7 +27,7 @@ setuptools.setup(
     ],
     keywords=['machine learning', ],
     python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
-    install_requires=['flatbuffers', ],
+    install_requires=['numpy', ],
 
     author='王振华（Zhenhua WANG）',
     author_email='i@jackwish.net',
