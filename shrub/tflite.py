@@ -1,5 +1,6 @@
 import numpy as np
 import logging
+import tflite
 from . import nn
 
 
@@ -44,3 +45,38 @@ def run(model, dumpOutput=False, logLevel=logging.DEBUG):
                 else:
                     np.testing.assert_allclose(model.outputs[i].dataAs(
                         'NHWC'), outs[i], atol=1e-3, rtol=1e-3, err_msg=msg)
+
+def parse(path: str):
+    """ Load TFLite model, and build a `Modole` object from it."""
+    with open(path, 'rb') as f:
+        buf = f.read()
+        m = tflite.Model.GetRootAsModel(buf, 0)
+    if (m.SubgraphsLength() != 1):
+        raise NotImplementedError("Only support one subgraph now, but the model has ",
+                                  model.SubgraphsLength())
+
+    g = m.Subgraphs(0)
+    name = 'Unknown' if g.Name() is None else g.Name().decode('utf-8')
+    # parse dtype of the model, assume they have same type.
+    i0 = g.Tensors(g.Inputs(0)).Type()
+    assert(i0 == tflite.TensorType.FLOAT32)
+    dtype = 'float32'
+    model = nn.Model(name, dtype)
+
+    def create_tensor(graph, index):
+        t = graph.Tensors(index)
+        name = t.Name().decode('utf-8')
+        dtype = 'float32'
+        shape = t.ShapeAsNumpy()
+        return nn.Tensor(name, shape, dtype)
+
+    for i in range(g.InputsLength()):
+        idx = g.Inputs(i)
+        tensor = create_tensor(g, idx)
+        model.add('input', tensor)
+    for i in range(g.OutputsLength()):
+        idx = g.Outputs(i)
+        tensor = create_tensor(g, idx)
+        model.add('output', tensor)
+
+    return model
