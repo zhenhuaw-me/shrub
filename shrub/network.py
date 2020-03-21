@@ -1,3 +1,5 @@
+"""Utils make it easy to compare data across different frameworks"""
+
 import numpy as np
 
 
@@ -66,11 +68,14 @@ class Tensor:
 
 
 class Model:
-    def __init__(self, name: str, dtype: str, layout='NHWC', path=None):
+    """Holding information that needs to run a model.
+
+    Representing basic information for a model, such as inputs and outputs.
+    """
+    def __init__(self, name: str, dtype: str, layout='NHWC'):
         self.name = name
         self.dtype = dtype
         self.layout = layout
-        self.path = path
         self.clear()
 
     def getTensors(self, ttype: str):
@@ -104,13 +109,34 @@ class Model:
             i.gen()
 
     def loadInput(self):
-        # FIXME
+        """Load inputs from file named as `input.{number}.txt'.
+
+        These files are expected to been written by the `store` interface.
+        """
         for i in range(0, len(self.inputs)):
             self.inputs[i].ndarray = load(self.inputs[i].shape,
                                           'input.' + str(i) + '.txt',
                                           self.inputs[i].dtype)
 
+    def cmpOutput(self, model):
+        """Compare output data against another model"""
+        assert(len(self.outputs) == len(model.outputs))
+        for i in range(len(model.outputs)):
+            msg = "Output %d mismatch!" % i
+            if model.dtype == 'uint8':
+                np.testing.assert_allclose(model.outputs[i].dataAs('NHWC'),
+                                           self.outputs[i].dataAs('NHWC'), err_msg=msg)
+            else:
+                np.testing.assert_allclose(model.outputs[i].dataAs('NHWC'),
+                                           self.outputs[i].dataAs('NHWC'),
+                                           atol=1e-3, rtol=1e-3, err_msg=msg)
+
     def store(self, ttype: str):
+        """Store inputs/outputs to file named as `{ttype}.{number}.txt'.
+
+        These files are expected to been read by the `loadInput` interface.
+        Or for comparation.
+        """
         tensors = self.getTensors(ttype)
         for i in range(0, len(tensors)):
             tensor = tensors[i]
@@ -193,7 +219,6 @@ def load(shape, fname, dtype):
     loaded = np.loadtxt(fname).astype(dtype)
     loaded = loaded.reshape(shape)
     return loaded
-
 
 def loadImage(fname):
     import imageio

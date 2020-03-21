@@ -1,19 +1,21 @@
 from contextlib import contextmanager
 
 
-def rewriteJSON(fname: str):
+def formatJSON(fname: str):
+    """Format JSON for readability."""
     import json
     assert fname
-    f = open(fname, "r")
+    f = open(fname, 'r')
     j = json.load(f)
     f.close()
 
-    f = open(fname, "w")
+    f = open(fname, 'w')
     f.write(json.dumps(j, indent=2))
     f.close()
 
 
 def args(index: int):
+    """Get index-th arguments of the program"""
     import sys
     assert index >= 0 and index < len(sys.argv)
     return sys.argv[index]
