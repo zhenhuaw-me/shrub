@@ -1,4 +1,4 @@
 from . import util
-from . import model
+from . import network
 from . import tflite
 #from . import tvm

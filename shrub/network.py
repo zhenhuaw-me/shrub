@@ -66,6 +66,19 @@ class Tensor:
                 size=self.shape).astype(
                 self.dtype)
 
+def cmpTensors(t1, t2):
+    """Compare Tensor list data"""
+    assert(len(t1) == len(t2))
+    for i in range(len(t2)):
+        msg = "Tensor %d mismatch!" % i
+        if t1[0].dtype == 'uint8':
+            np.testing.assert_allclose(t1[i].dataAs('NHWC'), t2[i].dataAs('NHWC'), err_msg=msg)
+        else:
+            np.testing.assert_allclose(t1[i].dataAs('NHWC'), t2[i].dataAs('NHWC'),
+                                       atol=1e-3, rtol=1e-3, err_msg=msg)
+    return True
+
+
 
 class Model:
     """Holding information that needs to run a model.
@@ -117,19 +130,6 @@ class Model:
             self.inputs[i].ndarray = load(self.inputs[i].shape,
                                           'input.' + str(i) + '.txt',
                                           self.inputs[i].dtype)
-
-    def cmpOutput(self, model):
-        """Compare output data against another model"""
-        assert(len(self.outputs) == len(model.outputs))
-        for i in range(len(model.outputs)):
-            msg = "Output %d mismatch!" % i
-            if model.dtype == 'uint8':
-                np.testing.assert_allclose(model.outputs[i].dataAs('NHWC'),
-                                           self.outputs[i].dataAs('NHWC'), err_msg=msg)
-            else:
-                np.testing.assert_allclose(model.outputs[i].dataAs('NHWC'),
-                                           self.outputs[i].dataAs('NHWC'),
-                                           atol=1e-3, rtol=1e-3, err_msg=msg)
 
     def store(self, ttype: str):
         """Store inputs/outputs to file named as `{ttype}.{number}.txt'.

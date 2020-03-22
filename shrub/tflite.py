@@ -4,14 +4,12 @@ import tflite
 from . import network
 
 
-def run(path, model=None, compare=False, dumpOutput=False, logLevel=logging.DEBUG):
-    """Run TFLite, optionally load/store data and/or return result in a Model object."""
+def run(path: str, inputs=None, logLevel=logging.DEBUG):
+    """Run TFLite, optionally take/return input/output data (Tensor list)."""
     try:
         from tensorflow.lite.python import interpreter as tflite_interp
     except ImportError:
         from tensorflow.contrib.lite.python import interpreter as tflite_interp
-    if model:
-        assert isinstance(model, network.Model)
     logging.log(logLevel, "Running TFLite...")
 
     # prepare runtime
@@ -21,19 +19,20 @@ def run(path, model=None, compare=False, dumpOutput=False, logLevel=logging.DEBU
     logging.log(logLevel, "Inputs: %s" % str(idetails))
     logging.log(logLevel, "Outputs: %s" % str(odetails))
 
-    # setup inputs if provided some
-    if model:
-        for i in range(len(model.inputs)):
-            idata = model.inputs[i].dataAs('NHWC')
+    if inputs:
+        for i in range(len(inputs)):
+            idata = inputs[i].dataAs('NHWC')
             interp.set_tensor(idetails[i]['index'], idata)
 
-    interp.invoke()
+        interp.invoke()
 
-    # collect output data
-    ret = parse(path)
-    for i in range(len(model.outputs)):
-        ret.outputs[i].ndarray = interp.get_tensor(odetails[i]['index'])
-    return ret
+        model = parse(path)
+        for i in range(len(model.outputs)):
+            model.outputs[i].ndarray = interp.get_tensor(odetails[i]['index'])
+        return model.outputs
+    else:
+        interp.invoke()
+        return None
 
 def parse(path: str):
     """ Load TFLite model, and build a `Modole` object from it."""
