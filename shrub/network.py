@@ -114,6 +114,8 @@ class Model:
             return {t.name: t.shape for t in tensors}
         elif key == 'dtype':
             return {t.name: t.dtype for t in tensors}
+        elif key == 'data':
+            return {t.name: t.ndarray for t in tensors}
         else:
             assert "Unsupported dict key {}".format(key)
 
