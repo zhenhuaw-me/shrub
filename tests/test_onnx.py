@@ -1,4 +1,8 @@
 import shrub
+import logging
+
+logging.basicConfig(format='[%(name)s:%(levelname)6s] [%(filename)12s:%(lineno)3d] [%(funcName)s] %(message)s',
+                    level=logging.DEBUG)
 
 path = '../../tflite2onnx.git/tests/abs.float32.onnx'
 

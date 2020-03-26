@@ -1,8 +1,10 @@
 import numpy as np
 from . import network
+from .common import logger
 
 
 def run(path: str, inputs=None):
+    logger.info("[onnx] running %s".format(path))
     import onnxruntime as ort
     sess = ort.InferenceSession(path)
     model = parse(path)
@@ -27,6 +29,7 @@ def run(path: str, inputs=None):
 
 
 def parse(path: str):
+    logger.info("[onnx] parsing %s".format(path))
     import onnxruntime as ort
     TYPE_MAPPING = {
             'tensor(int32)': 'int32',

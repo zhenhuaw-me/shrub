@@ -2,6 +2,8 @@
 
 import numpy as np
 
+from .common import logger
+
 
 class Tensor:
     """The Tensor class to hold semantic and data.
@@ -189,8 +191,7 @@ def nchw2nhwc(shape_or_ndarray):
 
 def oihw2hwoi(shape):
     if len(shape) != 4:
-        import logging
-        logging.warning("oihw2hwoi requires 4D shape")
+        logger.warning("oihw2hwoi requires 4D shape")
         return shape
     return (shape[2], shape[3], shape[0], shape[1])
 
