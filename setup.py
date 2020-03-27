@@ -25,9 +25,9 @@ setuptools.setup(
         'Operating System :: OS Independent',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
     ],
-    keywords=['machine learning', ],
-    python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
-    install_requires=['numpy', ],
+    keywords=['machine learning', 'tflite', 'onnx'],
+    python_requires='>=3.5.*, <4',
+    install_requires=['numpy', 'tensorflow', 'tflite', 'onnxruntime'],
 
     author='王振华（Zhenhua WANG）',
     author_email='i@jackwish.net',

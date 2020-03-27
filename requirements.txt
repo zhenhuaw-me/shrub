@@ -1,1 +1,8 @@
 numpy
+onnx
+onnxruntime
+setuptools
+tensorflow
+tflite
+twine
+wheel
