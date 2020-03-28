@@ -8,7 +8,7 @@ with open(os.path.join(here, 'README.md'), 'r') as fh:
 
 setuptools.setup(
     name='shrub',
-    version='0.0.1',
+    version='0.0.1-post0',
     description="Toys to play around with machine learning",
     packages=setuptools.find_packages(),
     classifiers=[
@@ -27,7 +27,7 @@ setuptools.setup(
     ],
     keywords=['machine learning', 'tflite', 'onnx'],
     python_requires='>=3.5.*, <4',
-    install_requires=['numpy', 'tensorflow', 'tflite', 'onnxruntime'],
+    install_requires=['numpy', 'onnxruntime', 'tensorflow', 'tflite'],
 
     author='王振华（Zhenhua WANG）',
     author_email='i@jackwish.net',
