@@ -30,5 +30,6 @@ def test_parse():
     assert(m.outputs[0].shape == [1, 1000])
 
 
-test_parse()
-test_run()
+if __name__ == '__main__':
+    test_parse()
+    test_run()

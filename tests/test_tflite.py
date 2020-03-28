@@ -30,5 +30,6 @@ def test_run():
     assert(shrub.network.cmpTensors(o1, o2))
 
 
-test_parse()
-test_run()
+if __name__ == '__main__':
+    test_parse()
+    test_run()
