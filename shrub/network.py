@@ -12,9 +12,13 @@ class Tensor:
     * Semantics for a tensor, name, shape, layout and etc.
     * Data in Numpy.
     """
-
-    def __init__(self, name: str, shape: tuple, dtype: str, layout='NHWC',
-                 src_layout='NHWC', ndarray=None):
+    def __init__(self,
+                 name: str,
+                 shape: tuple,
+                 dtype: str,
+                 layout='NHWC',
+                 src_layout='NHWC',
+                 ndarray=None):
         self.name = name
         self.dtype = dtype
         self.layout = layout
@@ -59,26 +63,27 @@ class Tensor:
     def gen(self):
         if self.dtype == 'uint8':
             self.ndarray = np.random.uniform(
-                low=0, high=255, size=self.shape).astype(
-                self.dtype)
+                low=0, high=255, size=self.shape).astype(self.dtype)
         else:
             self.ndarray = np.random.uniform(
-                low=-1,
-                high=1,
-                size=self.shape).astype(
-                self.dtype)
+                low=-1, high=1, size=self.shape).astype(self.dtype)
 
 
 def cmpTensors(t1, t2):
     """Compare Tensor list data"""
-    assert(len(t1) == len(t2))
+    assert (len(t1) == len(t2))
     for i in range(len(t2)):
         msg = "Tensor %d mismatch!" % i
         if t1[0].dtype == 'uint8':
-            np.testing.assert_allclose(t1[i].dataAs('NHWC'), t2[i].dataAs('NHWC'), err_msg=msg)
+            np.testing.assert_allclose(t1[i].dataAs('NHWC'),
+                                       t2[i].dataAs('NHWC'),
+                                       err_msg=msg)
         else:
-            np.testing.assert_allclose(t1[i].dataAs('NHWC'), t2[i].dataAs('NHWC'),
-                                       atol=1e-3, rtol=1e-3, err_msg=msg)
+            np.testing.assert_allclose(t1[i].dataAs('NHWC'),
+                                       t2[i].dataAs('NHWC'),
+                                       atol=1e-3,
+                                       rtol=1e-3,
+                                       err_msg=msg)
     return True
 
 
@@ -198,7 +203,7 @@ def oihw2hwoi(shape):
 
 def store(ndarray, fname):
     # caller shall handle layout transform
-    ndarray = ndarray.reshape((np.prod(ndarray.shape),))
+    ndarray = ndarray.reshape((np.prod(ndarray.shape), ))
     if ndarray.dtype in ['float64', 'float32']:
         np.savetxt(fname, ndarray, fmt='%.15f')
     else:
@@ -266,16 +271,18 @@ def plot(model_path, figure_path=None, tensor_count=10):
                 selected.clear()
             else:
                 break
-        print(
-            "Selected %d weight tensor from %s" %
-            (len(selected), model_path))
+        print("Selected %d weight tensor from %s" %
+              (len(selected), model_path))
         return selected
 
     def _plotDistribution(weights, figure_path=None):
         for w in weights:
             wv = w.ndarray.reshape(np.prod(w.ndarray.shape))
-            sns.distplot(wv, hist=False, kde=True,
-                         kde_kws={'linewidth': 2}, label=w.name)
+            sns.distplot(wv,
+                         hist=False,
+                         kde=True,
+                         kde_kws={'linewidth': 2},
+                         label=w.name)
 
         plt.legend(prop={'size': 10})
         plt.xlabel("Value Distribution of Selected Tensors")

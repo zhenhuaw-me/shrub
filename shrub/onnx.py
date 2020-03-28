@@ -14,13 +14,13 @@ def run(path: str, inputs=None):
         sess.run(onames, model.dict('input', 'data'))
         return None
     else:
-        assert(len(inputs) == len(model.inputs))
+        assert (len(inputs) == len(model.inputs))
         input_dict = {}
         for i in range(len(inputs)):
             input_dict[model.inputs[i].name] = inputs[i].ndarray
 
         outputs = sess.run(onames, input_dict)
-        assert(len(outputs) == len(model.outputs))
+        assert (len(outputs) == len(model.outputs))
 
         for i in range(len(outputs)):
             model.outputs[i].ndarray = outputs[i]
@@ -31,15 +31,15 @@ def parse(path: str):
     logger.info(" parsing %s", path)
     import onnxruntime as ort
     TYPE_MAPPING = {
-            'tensor(int32)': 'int32',
-            'tensor(float)': 'float32',
-            }
+        'tensor(int32)': 'int32',
+        'tensor(float)': 'float32',
+    }
 
     sess = ort.InferenceSession(path)
 
     name = 'Unknown'
     i0 = sess.get_inputs()[0]
-    assert(i0.type == 'tensor(float)')
+    assert (i0.type == 'tensor(float)')
     dtype = 'float32'
     model = network.Model(name, dtype)
 

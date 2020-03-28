@@ -21,6 +21,7 @@ def args(index: int):
     assert index >= 0 and index < len(sys.argv)
     return sys.argv[index]
 
+
 # from
 # https://thesmithfam.org/blog/2012/10/25/temporarily-suppress-console-output-in-python/
 @contextmanager
