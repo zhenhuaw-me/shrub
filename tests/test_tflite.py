@@ -1,7 +1,11 @@
 import shrub
+import logging
+import util_for_test
 
+logging.basicConfig(format='[%(name)s:%(levelname)6s] [%(filename)12s:%(lineno)3d] [%(funcName)s] %(message)s',
+                    level=logging.DEBUG)
 
-path = '../3rdparty/mobilenet_v1_1.0_224.tflite'
+path = util_for_test.download('mobilenet_v2_1.0_224.tflite')
 
 def test_parse():
     m = shrub.tflite.parse(path)
@@ -14,7 +18,7 @@ def test_parse():
     assert(m.inputs[0].dtype == 'float32')
     assert((m.inputs[0].shape == [1, 224, 224, 3]).all())
 
-    assert(m.outputs[0].name == 'MobilenetV1/Predictions/Reshape_1')
+    assert(m.outputs[0].name == 'MobilenetV2/Predictions/Reshape_1')
     assert(m.outputs[0].dtype == 'float32')
     assert((m.outputs[0].shape == [1, 1001]).all())
 
