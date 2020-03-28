@@ -4,7 +4,7 @@ from .common import logger
 
 
 def run(path: str, inputs=None):
-    logger.info("[onnx] running {}".format(path))
+    logger.info("running %s", path)
     import onnxruntime as ort
     sess = ort.InferenceSession(path)
     model = parse(path)
@@ -29,7 +29,7 @@ def run(path: str, inputs=None):
 
 
 def parse(path: str):
-    logger.info("[onnx] parsing {}".format(path))
+    logger.info(" parsing %s", path)
     import onnxruntime as ort
     TYPE_MAPPING = {
             'tensor(int32)': 'int32',

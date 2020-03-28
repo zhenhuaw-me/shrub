@@ -11,14 +11,14 @@ def run(path: str, inputs=None):
         from tensorflow.lite.python import interpreter as tflite_interp
     except ImportError:
         from tensorflow.contrib.lite.python import interpreter as tflite_interp
-    logger.info("[tflite] running {}".format(path))
+    logger.info("running %s", path)
 
     # prepare runtime
     interp = tflite_interp.Interpreter(model_path=path)
     interp.allocate_tensors()
     idetails, odetails = interp.get_input_details(), interp.get_output_details()
-    logger.debug("Inputs: %s" % str(idetails))
-    logger.debug("Outputs: %s" % str(odetails))
+    logger.debug("Inputs: %s", str(idetails))
+    logger.debug("Outputs: %s", str(odetails))
 
     if inputs:
         for i in range(len(inputs)):
@@ -37,7 +37,7 @@ def run(path: str, inputs=None):
 
 def parse(path: str):
     """ Load TFLite model, and build a `Modole` object from it."""
-    logger.info("[tflite] parsing {}".format(path))
+    logger.info("parsing %s", path)
     with open(path, 'rb') as f:
         buf = f.read()
         m = tflite.Model.GetRootAsModel(buf, 0)

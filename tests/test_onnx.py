@@ -1,11 +1,9 @@
 import shrub
 import logging
-import util_for_test
 
-logging.basicConfig(format='[%(name)s:%(levelname)6s] [%(filename)12s:%(lineno)3d] [%(funcName)s] %(message)s',
-                    level=logging.DEBUG)
+shrub.util.formatLogging(logging.DEBUG)
 
-path = util_for_test.download('mobilenetv2-1.0.onnx')
+path = shrub.testing.download('mobilenetv2-1.0.onnx')
 
 def test_run():
     m0 = shrub.onnx.parse(path)

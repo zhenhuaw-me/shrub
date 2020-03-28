@@ -1,11 +1,9 @@
 import shrub
 import logging
-import util_for_test
 
-logging.basicConfig(format='[%(name)s:%(levelname)6s] [%(filename)12s:%(lineno)3d] [%(funcName)s] %(message)s',
-                    level=logging.DEBUG)
+shrub.util.formatLogging(logging.DEBUG)
 
-path = util_for_test.download('mobilenet_v2_1.0_224.tflite')
+path = shrub.testing.download('mobilenet_v2_1.0_224.tflite')
 
 def test_parse():
     m = shrub.tflite.parse(path)
