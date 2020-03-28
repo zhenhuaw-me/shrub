@@ -1,0 +1,11 @@
+name: Sanity Check
+
+on: [push, pull_request]
+
+jobs:
+  pychecker:
+    name: Python Style Checker
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: andymckay/pycodestyle-action@0.1.3
