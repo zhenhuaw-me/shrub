@@ -9,10 +9,10 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.5, 3.6, 3.7]
+        python-version: [3.5, 3.6, 3.7, 3.8]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
@@ -26,7 +26,5 @@ jobs:
       shell: bash
     - name: Install package
       run: pip install -U assets/dist/shrub-*.whl
-    - name: Test- TensorFlow Lite
-      run: python tests/test_tflite.py
-    - name: Test- ONNX
-      run: python tests/test_onnx.py
+    - name: Testing
+      run: pytest
