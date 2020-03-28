@@ -1,4 +1,3 @@
-import numpy as np
 import tflite
 
 from . import network
@@ -35,6 +34,7 @@ def run(path: str, inputs=None):
         interp.invoke()
         return None
 
+
 def parse(path: str):
     """ Load TFLite model, and build a `Modole` object from it."""
     logger.info("parsing %s", path)
@@ -43,7 +43,7 @@ def parse(path: str):
         m = tflite.Model.GetRootAsModel(buf, 0)
     if (m.SubgraphsLength() != 1):
         raise NotImplementedError("Only support one subgraph now, but the model has ",
-                                  model.SubgraphsLength())
+                                  m.SubgraphsLength())
 
     g = m.Subgraphs(0)
     name = 'Unknown' if g.Name() is None else g.Name().decode('utf-8')

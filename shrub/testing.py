@@ -1,6 +1,7 @@
 import os
 import requests
 
+
 def download(fname: str):
     if not os.path.exists(fname):
         with open(fname, 'wb') as f:

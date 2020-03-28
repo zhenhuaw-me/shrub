@@ -1,4 +1,3 @@
-import numpy as np
 from . import network
 from .common import logger
 

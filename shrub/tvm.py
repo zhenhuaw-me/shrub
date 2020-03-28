@@ -3,7 +3,6 @@ import os
 import logging
 import numpy as np
 from tvm import autotvm, relay
-from tvm.relay import testing
 import tvm.contrib.graph_runtime as runtime
 from tvm.autotvm.tuner import XGBTuner
 
@@ -48,7 +47,7 @@ class TargetProvider:
             self.host = self.target
             self.rpc = self.RpcInfo(key, '/home/wzh/rpc.tvm/')
             os.environ['TVM_NDK_CC'] = 'aarch64-linux-gnu-g++'
-        if key in ['cpu',]:
+        if key in ['cpu', ]:
             self.target = 'llvm -target=x86_64-none-linux-gnueabi'
             self.host = self.target
             self.rpc = self.RpcInfo(key, '/home/scratch.zhenhuaw_sw/tvm/rpc/cpu/')
@@ -104,7 +103,7 @@ class Deployable:
 class RuntimeWrapper:
     def __init__(self, model, target, deployables):
         if target.rpc.path:
-                # upload module to device
+            # upload module to device
             logging.info("Upload...")
             remote = autotvm.measure.request_remote(
                 target.rpc.key, target.tracker.ip, target.tracker.port, timeout=1000)
@@ -247,10 +246,10 @@ class Tuner:
 
 def get_model(name, dtype, useLayout, batch_size=1):
     """Get the symbol definition and random weight of a network"""
-    builtin_workload = { 'resnet-18': relay.testing.resnet.get_workload,
-                         'mobilenet': relay.testing.mobilenet.get_workload,
-                         'squeezenet': relay.testing.squeezenet.get_workload,
-                       }
+    builtin_workload = {'resnet-18': relay.testing.resnet.get_workload,
+                        'mobilenet': relay.testing.mobilenet.get_workload,
+                        'squeezenet': relay.testing.squeezenet.get_workload,
+                        }
     assert name in builtin_workload
     from .nn import Model, Tensor
     model = Model(name, dtype, useLayout)

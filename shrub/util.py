@@ -55,6 +55,7 @@ def suppressLogging(level="error"):
     finally:
         logger.setLevel(old_level)
 
+
 def formatLogging(level):
     fmt = '%(asctime)s %(levelname).1s [%(name)s][%(filename)s:%(lineno)d] %(message)s'
     logging.basicConfig(format=fmt, level=level)

@@ -68,6 +68,7 @@ class Tensor:
                 size=self.shape).astype(
                 self.dtype)
 
+
 def cmpTensors(t1, t2):
     """Compare Tensor list data"""
     assert(len(t1) == len(t2))
@@ -79,7 +80,6 @@ def cmpTensors(t1, t2):
             np.testing.assert_allclose(t1[i].dataAs('NHWC'), t2[i].dataAs('NHWC'),
                                        atol=1e-3, rtol=1e-3, err_msg=msg)
     return True
-
 
 
 class Model:
@@ -99,7 +99,7 @@ class Model:
         elif ttype in ['output', 'o']:
             return self.outputs
         else:
-            assert "Unsupported tensor set {}".format(tensor_type)
+            assert "Unsupported tensor set {}".format(ttype)
 
     def add(self, ttype: str, t):
         assert isinstance(t, Tensor) and t.layout == self.layout
@@ -208,7 +208,6 @@ def store(ndarray, fname):
 def load(shape, fname, dtype):
     # caller shall handle layout transform
     # image?
-    import re
     if fname.endswith('.jpg') or fname.endswith('.png'):
         loaded = loadImage(fname)
         if (len(shape) == 4 and shape[1:] != loaded.shape) or \
@@ -222,6 +221,7 @@ def load(shape, fname, dtype):
     loaded = np.loadtxt(fname).astype(dtype)
     loaded = loaded.reshape(shape)
     return loaded
+
 
 def loadImage(fname):
     import imageio
