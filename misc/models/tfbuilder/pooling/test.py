@@ -21,7 +21,7 @@ class OpGenerator:
     def genTensorFlowModel(self):
         print("Generating TensorFlow model...")
         with tf.Session(graph=tf.Graph()) as sess:
-            net = tf.placeholder(tf.float32, shape=self.shape, name=self.iname)
+            net = tf.placeholder(self.tflite_dtype, shape=self.shape, name=self.iname)
             net = self.op(
                 net,
                 self.ksize,
@@ -63,7 +63,7 @@ def genOP():
     poolOp = tf.nn.avg_pool
 
     tflite_dtype = tf.float32
-    tflite_dtype = tf.uint8
+    # tflite_dtype = tf.uint8
 
     op = OpGenerator(poolOp, shape, ksize, strides, tflite_dtype=tflite_dtype)
     op.genTensorFlowModel()

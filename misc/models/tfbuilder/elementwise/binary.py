@@ -15,8 +15,8 @@ class OpGenerator:
     def genTensorFlowModel(self):
         print("Generating TensorFlow model...")
         with tf.Session(graph=tf.Graph()) as sess:
-            A = tf.placeholder(tf.float32, shape=self.shape, name='A')
-            B = tf.placeholder(tf.float32, shape=self.shape, name='B')
+            A = tf.placeholder(self.tflite_dtype, shape=self.shape, name='A')
+            B = tf.placeholder(self.tflite_dtype, shape=self.shape, name='B')
             net = self.op(A, B, name=self.oname)
             sess.run(tf.global_variables_initializer())
             constant_graph = graph_util.convert_variables_to_constants(
