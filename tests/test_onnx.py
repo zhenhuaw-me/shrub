@@ -1,5 +1,7 @@
-import shrub
+import os
 import logging
+
+import shrub
 
 shrub.util.formatLogging(logging.DEBUG)
 
@@ -11,6 +13,15 @@ def test_run():
     m0.genInput()
     o1 = shrub.onnx.run(path, m0.inputs)
     o2 = shrub.onnx.run(path, m0.inputs)
+    assert(shrub.network.cmpTensors(o1, o2))
+
+def test_run_nhwc():
+    here = os.path.abspath(os.path.dirname(__file__))
+    path = here + "/../assets/models/avgpool-nhwc.onnx"
+    m0 = shrub.onnx.parse(path, layout='NHWC')
+    m0.genInput()
+    o1 = shrub.onnx.run(path, m0.inputs, layout='NHWC')
+    o2 = shrub.onnx.run(path, m0.inputs, layout='NHWC')
     assert(shrub.network.cmpTensors(o1, o2))
 
 
@@ -33,3 +44,4 @@ def test_parse():
 if __name__ == '__main__':
     test_parse()
     test_run()
+    test_run_nhwc()
