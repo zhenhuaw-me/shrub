@@ -3,6 +3,13 @@ from .common import logger
 
 
 def run(path: str, inputs=None, layout='NCHW'):
+    """Run a ONNX model with optional input data.
+
+    Parameters
+    path: path to ONNX model.
+    inputs: A list of Tensors. If no, generate random inputs.
+    layout: the input output layout of the model.
+    """
     logger.info("running %s", path)
     import onnxruntime as ort
     sess = ort.InferenceSession(path)
@@ -29,6 +36,12 @@ def run(path: str, inputs=None, layout='NCHW'):
 
 
 def parse(path: str, layout='NCHW'):
+    """Parse a ONNX model to Network semanric.
+
+    Parameters
+    path: path to ONNX model.
+    layout: the input output layout of the model.
+    """
     # layout specifies the layout of input/output tensors of the model
     logger.info(" parsing %s", path)
     import onnxruntime as ort
