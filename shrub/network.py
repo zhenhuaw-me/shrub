@@ -37,7 +37,7 @@ class Tensor:
 
     def _supported_layout(self, layout: str):
         if layout not in ['NCHW', 'NHWC']:
-            raise ValueError("Unsupported layout: %s!".format(layout))
+            raise ValueError("Unsupported layout: %s!" % layout)
 
     def _same_layout(self, layout: str):
         return (layout == self.layout)

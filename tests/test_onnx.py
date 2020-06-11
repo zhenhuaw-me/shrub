@@ -15,6 +15,7 @@ def test_run():
     o2 = shrub.onnx.run(path, m0.inputs)
     assert(shrub.network.cmpTensors(o1, o2))
 
+
 def test_run_nhwc():
     here = os.path.abspath(os.path.dirname(__file__))
     path = here + "/../assets/models/avgpool-nhwc.onnx"

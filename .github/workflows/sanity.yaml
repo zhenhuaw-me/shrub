@@ -21,4 +21,4 @@ jobs:
     - name: Check Python Style
       run: |
         flake8 --count --show-source --max-complexity=10 --statistics --max-line-length=100 ./shrub
-        flake8 --count --show-source --max-complexity=10 --statistics --max-line-length=100 ./test
+        flake8 --count --show-source --max-complexity=10 --statistics --max-line-length=100 ./tests
