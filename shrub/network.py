@@ -22,6 +22,8 @@ class Tensor:
                  ndarray=None):
         self.name = name
         self.dtype = dtype
+
+        # layout attributes
         self.layout = layout
         self._supported_layout(layout)
         self._supported_layout(src_layout)
@@ -36,7 +38,7 @@ class Tensor:
                 self.shape = nchw2nhwc(shape)
                 self.ndarray = nchw2nhwc(ndarray)
 
-        # quantization attributions, default to `uint8` schema
+        # quantization attributes, default to `uint8` schema
         self.quantized = quantized
         self.scale = 1.0
         self.zero_point = 127
@@ -61,12 +63,15 @@ class Tensor:
                 raise ValueError("Shall not reach!")
 
     def shapeAs(self, layout: str):
+        """Obtain shape with given layout, transform automatically."""
         return self._convert_to_layout(self.shape, layout)
 
     def dataAs(self, layout: str):
+        """Obtain data with given layout, transform automatically."""
         return self._convert_to_layout(self.ndarray, layout)
 
     def setQuantizeParam(self, scale: float, zero_point: int):
+        """Setup quantization parameters - uint8 schema"""
         self.scale = scale
         self.zero_point = zero_point
         if (zero_point < 0 or zero_point > 255):
