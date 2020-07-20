@@ -7,7 +7,6 @@ setuptools.setup(
     description=shrub.DESCRIPTION,
     packages=setuptools.find_packages(),
     python_requires='>=3.5.*, <4',
-    install_requires=['numpy', 'onnxruntime', 'tensorflow', 'tflite'],
 
     author='王振华（Zhenhua WANG）',
     author_email='i@jackwish.net',
