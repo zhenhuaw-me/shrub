@@ -16,6 +16,7 @@ class Tensor:
                  name: str,
                  shape: tuple,
                  dtype: str,
+                 quantized: bool = False,
                  layout='NHWC',
                  src_layout='NHWC',
                  ndarray=None):
@@ -34,6 +35,11 @@ class Tensor:
             elif self.layout == 'NHWC':
                 self.shape = nchw2nhwc(shape)
                 self.ndarray = nchw2nhwc(ndarray)
+
+        # quantization attributions, default to `uint8` schema
+        self.quantized = quantized
+        self.scale = 1.0
+        self.zero_point = 127
 
     def _supported_layout(self, layout: str):
         if layout not in ['NCHW', 'NHWC']:
@@ -59,6 +65,40 @@ class Tensor:
 
     def dataAs(self, layout: str):
         return self._convert_to_layout(self.ndarray, layout)
+
+    def setQuantizeParam(self, scale: float, zero_point: int):
+        self.scale = scale
+        self.zero_point = zero_point
+        if (zero_point < 0 or zero_point > 255):
+            raise ValueError("Invalid zero point %s" % zero_point)
+
+    def quantize(self):
+        """Quantize the tensor data to uint8 if it is not quantized yet
+
+        This will overwrite the `self.ndarray`.
+        """
+        assert(not self.quantized)
+        assert(self.dtype == 'float32')
+        assert(self.ndarray is not None)
+        fp32 = self.ndarray
+        scaled = np.divide(fp32, self.scale)
+        shiftted = np.add(scaled, self.zero_point)
+        self.ndarray = np.clip(shiftted, 0, 255).astype('uint8')
+        self.dtype = 'uint8'
+
+    def dequantize(self):
+        """Dequantize the tensor data to float32 if it is quantized.
+
+        This will overwrite the `self.ndarray`.
+        """
+        assert(self.quantized)
+        assert(self.dtype == 'uint8')
+        assert(self.ndarray is not None)
+        int32 = self.ndarray.astype('int32')
+        shiftted = np.subtract(int32, self.zero_point)
+        fp32 = np.multiply(shiftted.astype('float32'), self.scale)
+        self.ndarray = fp32
+        self.dtype = 'float32'
 
     def gen(self):
         if self.dtype == 'uint8':
