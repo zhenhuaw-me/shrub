@@ -1,10 +1,10 @@
 #!/bin/env python
-import os, logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('tuning')
-import tvm
-from tvm import autotvm
+
+import os
+import logging
 import shrub
+
+logging.basicConfig(level=logging.INFO)
 
 ################# XXX update these env accordingly XXX #############
 

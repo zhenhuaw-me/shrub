@@ -7,12 +7,6 @@ from tensorflow.python.platform import gfile
 from tensorflow.core.framework import graph_pb2
 from tensorflow.python.framework import graph_util
 
-import tvm
-import nnvm
-from tvm.contrib import graph_runtime as runtime
-from tvm import rpc
-import jackwish as jw
-
 
 class OpChecker:
     def __init__(self, dense_shape, dtype="float32"):
@@ -70,43 +64,6 @@ class OpChecker:
                 outputs, feed_dict={
                     image_input_tensor: self.input_nhwc})[0]
 
-    def runTVM(self):
-        print("run TVM...")
-        tvm_target_name = "llvm"
-        mlmodel = coremltools.models.MLModel(self.name + ".mlmodel")
-        sym, params = nnvm.frontend.from_coreml(mlmodel)
-        target = tvm.target.create(tvm_target_name)
-        ctx = tvm.context(tvm_target_name, 0)
-        with nnvm.compiler.build_config(opt_level=1):
-            graph, lib, params = nnvm.compiler.build(
-                sym, target, shape={self.iname + "__0": nhwc2nchw(self.ishape)}, params=params)
-
-        # export deployables
-        useRemote = False
-        bin_path = './deploy'
-        if not os.path.exists(bin_path):
-            os.makedirs(bin_path)
-        path_so = os.path.join(bin_path, "lib.so")
-        if useRemote:
-            from tvm.contrib import ndk
-            lib.export_library(path_so, ndk.create_shared)
-        else:
-            lib.export_library(path_so)
-        path_json = os.path.join(bin_path, "graph.json")
-        with open(path_json, "w") as fo:
-            fo.write(graph.json())
-        path_params = os.path.join(bin_path, "param.params")
-        with open(path_params, "wb") as fo:
-            fo.write(nnvm.compiler.save_param_dict(params))
-
-        module = runtime.create(graph, lib, ctx)
-        module.set_input(self.iname + "__0", tvm.nd.array(self.input_nchw))
-        module.set_input(**params)
-        module.run()
-
-        self.output_tvm = module.get_output(0, tvm.nd.empty(
-            nhwc2nchw(self.oshape), self.dtype)).asnumpy()
-
     def runTFLite(self):
         try:
             from tensorflow.contrib.lite.python import interpreter as interpreter_wrapper
@@ -140,19 +97,6 @@ def test_OP(dense_shape, dtype="float32"):
 
     op = OpChecker(dense_shape, dtype=dtype)
     op.genModels()
-
-    # op.quantizeCoreML()
-    # if input_file:
-    #     op.loadInputs(input_file)
-    # else:
-    #     op.preRun()
-    # op.cmpQuantizedCoreML()
-    # op.runTensorFlow()
-    # op.runTVM()
-    # op.runTFLite()
-    # np.testing.assert_allclose(op.output_tvm, np.transpose(op.output_tf, axes=(0, 3, 1, 2)),
-    #                            atol=1e-3, rtol=1e-3)
-    # op.saveOutputs()
 
     print("\n[Pass] Test OP\n")
 

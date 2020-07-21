@@ -1,16 +1,10 @@
 import numpy as np
-import jackwish as jw
 import os
 
 import tensorflow as tf
 from tensorflow.python.platform import gfile
 from tensorflow.core.framework import graph_pb2
 from tensorflow.python.framework import graph_util
-
-import tvm
-import nnvm
-from tvm.contrib import graph_runtime as runtime
-
 
 class OpChecker:
     def __init__(
@@ -127,81 +121,6 @@ class OpChecker:
             self.output_tflite = interpreter.get_tensor(
                 output_details[0]['index'])
 
-    def runTVM(self, useRemote=False, dumpIR=False):
-        if useRemote:
-            target = 'llvm -device=arm_cpu -model=mtk6763 -target=aarch64-none-linux-gnueabi -mcpu=cortex-a53 -mattr=+neon'
-            target_host = target
-            os.environ["TVM_NDK_CC"] = "/home/wzh/alios/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-gnueabi-4.9-glibc-2.20/bin/aarch64-linux-gnueabi-g++"
-            rpc_url = "11.163.182.45"
-            rpc_port = 20093
-            rpc_key = 'mtk6763.alios'
-        else:
-            target = 'llvm'
-            target_host = "llvm"
-        import tflite.Model
-        print("run TVM...")
-        buf = open(self.tflite_model_path, 'rb').read()
-        tflite_model = tflite.Model.Model.GetRootAsModel(buf, 0)
-        sym, params = nnvm.frontend.from_tflite(tflite_model)
-        target = tvm.target.create(target)
-        with nnvm.compiler.build_config(opt_level=3):
-            with tvm.build_config(dump_pass_ir=dumpIR):
-                graph, lib, params = nnvm.compiler.build(
-                    sym, target=target, target_host=target_host, shape={
-                        self.iname: jw.nhwc2nchw(
-                            self.ishape)}, params=params, dtype={
-                        self.iname: self.dtype})
-
-        # export deployables
-        bin_path = './deploy'
-        if not os.path.exists(bin_path):
-            os.makedirs(bin_path)
-        path_so = os.path.join(bin_path, "lib.so")
-        if useRemote:
-            from tvm.contrib import ndk
-            lib.export_library(path_so, ndk.create_shared)
-        else:
-            lib.export_library(path_so)
-        path_json = os.path.join(bin_path, "graph.json")
-        with open(path_json, "w") as fo:
-            fo.write(graph.json())
-        path_params = os.path.join(bin_path, "param.params")
-        with open(path_params, "wb") as fo:
-            fo.write(nnvm.compiler.save_param_dict(params))
-        lib.save(os.path.join(bin_path, "lib.ll"), "ll")
-        lib.save(os.path.join(bin_path, "lib.asm"), "asm")
-
-        rpc_path = ""
-        if useRemote:
-            tracker = tvm.rpc.connect_tracker(rpc_url, rpc_port)
-            remote = tracker.request(rpc_key, priority=0, session_timeout=30)
-            remote.upload(path_so, target=rpc_path + "mylib.so")
-            rlib = remote.load_module(rpc_path + "mylib.so")
-            mparams = {
-                k: tvm.nd.array(
-                    v,
-                    remote.context(
-                        str(target),
-                        0)) for k,
-                v in params.items()}
-            ctx = remote.context(str(target), 0)
-            module = runtime.create(graph, rlib, ctx)
-        else:
-            mparams = params
-            ctx = tvm.context(str(target), 0)
-            module = runtime.create(graph, lib, ctx)
-
-        module.set_input(self.iname, tvm.nd.array(self.input_nchw))
-        module.set_input(**mparams)
-        module.run()
-
-        self.output_tvm = module.get_output(
-            0,
-            tvm.nd.empty(
-                jw.nhwc2nchw(
-                    self.oshape),
-                self.dtype,
-                ctx=ctx)).asnumpy()
 
 
 def testFindTrickyInputs(
