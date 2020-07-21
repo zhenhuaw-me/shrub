@@ -6,7 +6,7 @@ from tvm import autotvm, relay
 import tvm.contrib.graph_runtime as runtime
 from tvm.autotvm.tuner import XGBTuner
 
-logger = logging.getLogger('tuning')
+logger = logging.getLogger('shrub')
 
 
 class TargetProvider:

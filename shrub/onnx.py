@@ -1,5 +1,7 @@
-from . import network
-from .common import logger
+import logging
+from shrub import network
+
+logger = logging.getLogger('shrub')
 
 
 def run(path: str, inputs=None, layout='NCHW'):

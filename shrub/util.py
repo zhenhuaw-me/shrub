@@ -39,7 +39,6 @@ def suppressStdout():
 
 @contextmanager
 def suppressLogging(level="error"):
-    import logging
     logmap = {
         'debug': logging.DEBUG,
         'info': logging.INFO,

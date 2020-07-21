@@ -1,8 +1,9 @@
 """Utils make it easy to compare data across different frameworks"""
+import logging
 
 import numpy as np
 
-from .common import logger
+logger = logging.getLogger('shrub')
 
 
 class Tensor:
