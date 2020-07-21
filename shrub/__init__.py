@@ -1,9 +1,10 @@
-from . import network
-from . import onnx
-from . import testing
-from . import tflite
-# from . import tvm
-from . import util
+from shrub import network
+from shrub import onnx
+from shrub import testing
+from shrub import tflite
+from shrub.tflite import TFLiteRunner
+from shrub import util
+
 
 # package metadata
 NAME = 'shrub'
