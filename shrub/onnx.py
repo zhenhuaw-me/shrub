@@ -1,7 +1,91 @@
 import logging
-from shrub import network
+
+from shrub.common import BaseRunner
+from shrub.network import Model, Tensor
 
 logger = logging.getLogger('shrub')
+
+
+class ONNXRunner(BaseRunner):
+    def __init__(self, path: str, layout: str='NCHW'):
+        """ Runner for ONNX model
+
+        Parameters
+        path: path to ONNX model.
+        layout: the input output layout of the model.
+        """
+        super().__init__(path)
+        self.layout = layout
+
+    @property
+    def quantized(self):
+        """ONNX model is not quantized end to end."""
+        return False
+
+    def parse(self):
+        """Parse a ONNX model to Network semanric."""
+        # layout specifies the layout of input/output tensors of the model
+        if self.model:
+            return self.model
+        logger.debug(" parsing %s", self.path)
+        import onnxruntime as ort
+        TYPE_MAPPING = {
+            'tensor(int32)': 'int32',
+            'tensor(float)': 'float32',
+        }
+
+        sess = ort.InferenceSession(self.path)
+
+        name = 'Unknown'
+        i0 = sess.get_inputs()[0]
+        assert (i0.type == 'tensor(float)')
+        dtype = 'float32'
+        model = Model(name, dtype, layout=self.layout)
+
+        def create_tensor(t):
+            return Tensor(t.name, t.shape, TYPE_MAPPING[t.type],
+                                  layout=self.layout, src_layout=self.layout)
+
+        for t in sess.get_inputs():
+            tensor = create_tensor(t)
+            model.add('input', tensor)
+        for t in sess.get_outputs():
+            tensor = create_tensor(t)
+            model.add('output', tensor)
+
+        self.model = model
+        return model
+
+
+    def run(self, inputs=None):
+        """Run a ONNX model with optional input data.
+
+        Parameters
+        inputs: A list of Tensors. If no, generate random inputs.
+        """
+        logger.debug("running %s", self.path)
+        import onnxruntime as ort
+        sess = ort.InferenceSession(self.path)
+        model = self.parse()
+        onames = [t.name for t in model.outputs]
+
+        if inputs is None:
+            model.genInput()
+            sess.run(onames, model.dict('input', 'data'))
+            return None
+        else:
+            assert (len(inputs) == len(model.inputs))
+            input_dict = {}
+            for i in range(len(inputs)):
+                input_dict[model.inputs[i].name] = inputs[i].dataAs(self.layout)
+
+            outputs = sess.run(onames, input_dict)
+            assert (len(outputs) == len(model.outputs))
+
+            for i in range(len(outputs)):
+                assert(model.outputs[i].layout == self.layout)
+                model.outputs[i].ndarray = outputs[i]
+            return model.outputs
 
 
 def run(path: str, inputs=None, layout='NCHW'):
@@ -12,29 +96,8 @@ def run(path: str, inputs=None, layout='NCHW'):
     inputs: A list of Tensors. If no, generate random inputs.
     layout: the input output layout of the model.
     """
-    logger.info("running %s", path)
-    import onnxruntime as ort
-    sess = ort.InferenceSession(path)
-    model = parse(path, layout=layout)
-    onames = [t.name for t in model.outputs]
-
-    if inputs is None:
-        model.genInput()
-        sess.run(onames, model.dict('input', 'data'))
-        return None
-    else:
-        assert (len(inputs) == len(model.inputs))
-        input_dict = {}
-        for i in range(len(inputs)):
-            input_dict[model.inputs[i].name] = inputs[i].dataAs(layout)
-
-        outputs = sess.run(onames, input_dict)
-        assert (len(outputs) == len(model.outputs))
-
-        for i in range(len(outputs)):
-            assert(model.outputs[i].layout == layout)
-            model.outputs[i].ndarray = outputs[i]
-        return model.outputs
+    runner = ONNXRunner(path, layout)
+    return runner.run(inputs)
 
 
 def parse(path: str, layout='NCHW'):
@@ -44,31 +107,5 @@ def parse(path: str, layout='NCHW'):
     path: path to ONNX model.
     layout: the input output layout of the model.
     """
-    # layout specifies the layout of input/output tensors of the model
-    logger.info(" parsing %s", path)
-    import onnxruntime as ort
-    TYPE_MAPPING = {
-        'tensor(int32)': 'int32',
-        'tensor(float)': 'float32',
-    }
-
-    sess = ort.InferenceSession(path)
-
-    name = 'Unknown'
-    i0 = sess.get_inputs()[0]
-    assert (i0.type == 'tensor(float)')
-    dtype = 'float32'
-    model = network.Model(name, dtype, layout=layout)
-
-    def create_tensor(t):
-        return network.Tensor(t.name, t.shape, TYPE_MAPPING[t.type],
-                              layout=layout, src_layout=layout)
-
-    for t in sess.get_inputs():
-        tensor = create_tensor(t)
-        model.add('input', tensor)
-    for t in sess.get_outputs():
-        tensor = create_tensor(t)
-        model.add('output', tensor)
-
-    return model
+    runner = ONNXRunner(path, layout)
+    return runner.parse()

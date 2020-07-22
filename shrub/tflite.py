@@ -1,15 +1,15 @@
 import logging
 import tflite
 
-from shrub import network
+from shrub.common import BaseRunner
+from shrub.network import Model, Tensor
 
 logger = logging.getLogger('shrub')
 
 
-class TFLiteRunner:
+class TFLiteRunner(BaseRunner):
     def __init__(self, path: str):
-        self.path = path
-        self.model = None
+        super().__init__(self, path)
 
     def _getGraph(self):
         with open(self.path, 'rb') as f:
@@ -37,14 +37,14 @@ class TFLiteRunner:
         o0 = g.Tensors(g.Outputs(0)).Type()
         assert (o0 == tflite.TensorType.FLOAT32)
         dtype = 'float32'
-        model = network.Model(name, dtype)
+        model = Model(name, dtype)
 
         def create_tensor(graph, index):
             t = graph.Tensors(index)
             name = t.Name().decode('utf-8')
             dtype = 'float32'
             shape = t.ShapeAsNumpy()
-            return network.Tensor(name, shape, dtype)
+            return Tensor(name, shape, dtype)
 
         for i in range(g.InputsLength()):
             idx = g.Inputs(i)
