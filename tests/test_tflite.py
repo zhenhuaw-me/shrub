@@ -1,12 +1,15 @@
-import shrub
+import os
 import logging
+import shrub
 
 shrub.util.formatLogging(logging.DEBUG)
 
-path = shrub.testing.download('mobilenet_v2_1.0_224.tflite')
+TEST_DIR = os.path.dirname(os.path.realpath(__file__))
+ASSETS_DIR = os.path.join(TEST_DIR, '../assets/tests')
 
 
 def test_parse():
+    path = os.path.join(ASSETS_DIR, 'mobilenet_v2_1.0_224.tflite')
     m = shrub.tflite.parse(path)
 
     assert(m.name == 'Unknown')
@@ -23,6 +26,7 @@ def test_parse():
 
 
 def test_run():
+    path = os.path.join(ASSETS_DIR, 'mobilenet_v2_1.0_224.tflite')
     m0 = shrub.tflite.parse(path)
     m0.genInput()
     o1 = shrub.tflite.run(path, m0.inputs)

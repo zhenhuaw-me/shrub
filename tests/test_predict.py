@@ -3,7 +3,9 @@ import shrub
 import logging
 
 shrub.util.formatLogging(logging.DEBUG)
-ASSETS_DIR = '../assets/tests'
+
+TEST_DIR = os.path.dirname(os.path.realpath(__file__))
+ASSETS_DIR = os.path.join(TEST_DIR, '../assets/tests')
 
 
 def test_predict_tflite():

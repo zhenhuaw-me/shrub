@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import numpy as np
 from shrub.network import Tensor
 
@@ -47,10 +46,6 @@ def test_dequantize():
         assert(fp32[i] == dequantized[i])
 
 
-def main():
+if __name__ == '__main__':
     test_quantize()
     test_dequantize()
-
-
-if __name__ == '__main__':
-    main()

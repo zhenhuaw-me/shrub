@@ -1,14 +1,15 @@
 import os
 import logging
-
 import shrub
 
 shrub.util.formatLogging(logging.DEBUG)
 
-path = shrub.testing.download('mobilenetv2-1.0.onnx')
+TEST_DIR = os.path.dirname(os.path.realpath(__file__))
+ASSETS_DIR = os.path.join(TEST_DIR, '../assets/tests')
 
 
 def test_run():
+    path = os.path.join(ASSETS_DIR, 'mobilenetv2-1.0.onnx')
     m0 = shrub.onnx.parse(path)
     m0.genInput()
     o1 = shrub.onnx.run(path, m0.inputs)
@@ -17,8 +18,7 @@ def test_run():
 
 
 def test_run_nhwc():
-    here = os.path.abspath(os.path.dirname(__file__))
-    path = here + "/../assets/models/avgpool-nhwc.onnx"
+    path = os.path.join(ASSETS_DIR, 'avgpool-nhwc.onnx')
     m0 = shrub.onnx.parse(path, layout='NHWC')
     m0.genInput()
     o1 = shrub.onnx.run(path, m0.inputs, layout='NHWC')
@@ -27,6 +27,7 @@ def test_run_nhwc():
 
 
 def test_parse():
+    path = os.path.join(ASSETS_DIR, 'mobilenetv2-1.0.onnx')
     m = shrub.onnx.parse(path)
 
     assert(m.name == 'Unknown')
