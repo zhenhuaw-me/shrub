@@ -3,6 +3,7 @@ from shrub import onnx
 from shrub import testing
 from shrub import tflite
 from shrub.tflite import TFLiteRunner
+from shrub.predict import Classifier
 from shrub import util
 
 
@@ -18,6 +19,8 @@ __all__ = [
     testing,
     tflite,
     util,
+    Classifier,
+    TFLiteRunner,
     NAME,
     VERSION,
     DESCRIPTION,

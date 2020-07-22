@@ -78,6 +78,14 @@ class Tensor:
         if (zero_point < 0 or zero_point > 255):
             raise ValueError("Invalid zero point %s" % zero_point)
 
+    def spatialShape(self):
+        if self.layout == 'NCHW':
+            return self.shape[2:]
+        elif self.layout == 'NHWC':
+            return self.shape[1:-1]
+        else:
+            raise ValueError("Unknwon layout %s" % self.layout)
+
     def quantize(self):
         """Quantize the tensor data to uint8 if it is not quantized yet
 
