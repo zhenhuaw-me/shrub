@@ -24,5 +24,18 @@ def test_predict_tflite():
     assert(results == excepted)
 
 
+def test_predict_onnx():
+    model = os.path.join(ASSETS_DIR, 'mobilenetv2-1.0.onnx')
+    labels = os.path.join(ASSETS_DIR, 'synset.txt')
+    image = os.path.join(ASSETS_DIR, 'cat.jpg')
+    classifier = shrub.Classifier(model, labels)
+    results = classifier.classify(image, 5)
+    for i in results:
+        print(i)
+    excepted = [
+    ]
+    # assert(results == excepted)
+
 if __name__ == '__main__':
     test_predict_tflite()
+    test_predict_onnx()

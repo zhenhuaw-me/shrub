@@ -9,7 +9,7 @@ logger = logging.getLogger('shrub')
 
 class TFLiteRunner(BaseRunner):
     def __init__(self, path: str):
-        super().__init__(self, path)
+        super().__init__(path)
 
     def _getGraph(self):
         with open(self.path, 'rb') as f:

@@ -71,6 +71,19 @@ class Tensor:
         """Obtain data with given layout, transform automatically."""
         return self._convert_to_layout(self.ndarray, layout)
 
+    def setData(self, ndarray, layout):
+        self._supported_layout(layout)
+        if self._same_layout(layout):
+            assert((self.shape == ndarray.shape).all())
+            self.ndarray = ndarray
+        else:
+            if layout == 'NCHW':
+                self.ndarray = nchw2nhwc(ndarray)
+            elif layout == 'NHWC':
+                self.ndarray = nhwc2nchw(ndarray)
+            else:
+                raise ValueError("Shall not reach!")
+
     def setQuantizeParam(self, scale: float, zero_point: int):
         """Setup quantization parameters - uint8 schema"""
         self.scale = scale
