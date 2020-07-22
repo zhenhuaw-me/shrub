@@ -9,7 +9,9 @@ logger = logging.getLogger('shrub')
 
 class Classifier:
     """ImageNet classifier"""
-    def __init__(self, model: str, label_file: str):
+    def __init__(self, model: str, label_file: str, std=127.5, mean=127.5):
+        self.std = std
+        self.mean = mean
         runner_key = model.split('.')[-1]
         if runner_key == 'tflite':
             self.runner = TFLiteRunner(model)
@@ -24,17 +26,19 @@ class Classifier:
         with open(label_file, 'r') as f:
             self.labels = [line.strip() for line in f.readlines()]
 
+    def setStdMean(self, std, mean):
+        # MEAN = [0.485, 0.456, 0.406]
+        # STD = [0.229, 0.224, 0.225]
+        self.std = std
+        self.mean = mean
+
     def preprocess(self, image):
         spatialShape = self.model.inputs[0].spatialShape()
         img = Image.open(image).resize(spatialShape)
         input_data = np.reshape(img, (1, 224, 224, 3))
         if not self.quantized:
             input_data = input_data.astype('float32')
-            # MEAN = [0.485, 0.456, 0.406]
-            # STD = [0.229, 0.224, 0.225]
-            MEAN = 127.5  # TensorFlow...
-            STD = 127.5
-            input_data = ((input_data - MEAN) / STD).astype('float32')
+            input_data = ((input_data - self.mean) / self.std).astype('float32')
         return input_data
 
     def classify(self, image, top=5):
