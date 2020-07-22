@@ -1,6 +1,5 @@
 from shrub import network
 from shrub import onnx
-from shrub import testing
 from shrub import tflite
 from shrub.tflite import TFLiteRunner
 from shrub.predict import Classifier
@@ -16,7 +15,6 @@ LICENSE = 'Apache License Version 2.0'
 __all__ = [
     network,
     onnx,
-    testing,
     tflite,
     util,
     Classifier,
