@@ -8,15 +8,20 @@ from shrub.onnx import ONNXRunner
 logger = logging.getLogger('shrub')
 
 
+def softmax(x):
+    e_x = np.exp(x - np.max(x))
+    return e_x / e_x.sum()
+
+
 class Classifier:
     """ImageNet classifier"""
     def __init__(self, model: str, label_file: str):
-        runner_key = model.split('.')[-1]
-        if runner_key == 'tflite':
+        self.runner_key = model.split('.')[-1]
+        if self.runner_key == 'tflite':
             self.runner = TFLiteRunner(model)
             self.mean = 127.5
             self.std = 127.5
-        elif runner_key == 'onnx':
+        elif self.runner_key == 'onnx':
             self.runner = ONNXRunner(model)
             self.mean = [0.485, 0.456, 0.406]
             self.std = [0.229, 0.224, 0.225]
@@ -38,16 +43,24 @@ class Classifier:
         img = np.expand_dims(img, axis=0)
         if not self.quantized:
             img = img.astype('float32')
+            if self.runner_key == 'onnx':
+                img = img / 255.0
             img = ((img - self.mean) / self.std).astype('float32')
         return img
 
     def classify(self, image, top=5):
         logger.debug("classifying %s" % image)
         inputs = self.model.inputs
+
         inputs[0].setData(self.preprocess(image), layout='NHWC')
         outputs = self.runner.run(inputs)
 
-        output = outputs[0].ndarray.flatten()
+        output = outputs[0].ndarray
+        if self.runner_key == 'onnx':
+            output = softmax(output)
+        output = output.squeeze()
+
+        # print(output.argsort()[::-1])
         topN = output.argsort()[-top:][::-1]
         results = list()
         for i in topN:

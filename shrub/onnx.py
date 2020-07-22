@@ -7,7 +7,7 @@ logger = logging.getLogger('shrub')
 
 
 class ONNXRunner(BaseRunner):
-    def __init__(self, path: str, layout: str='NCHW'):
+    def __init__(self, path: str, layout: str = 'NCHW'):
         """ Runner for ONNX model
 
         Parameters
@@ -44,7 +44,7 @@ class ONNXRunner(BaseRunner):
 
         def create_tensor(t):
             return Tensor(t.name, t.shape, TYPE_MAPPING[t.type],
-                                  layout=self.layout, src_layout=self.layout)
+                          layout=self.layout, src_layout=self.layout)
 
         for t in sess.get_inputs():
             tensor = create_tensor(t)
@@ -55,7 +55,6 @@ class ONNXRunner(BaseRunner):
 
         self.model = model
         return model
-
 
     def run(self, inputs=None):
         """Run a ONNX model with optional input data.

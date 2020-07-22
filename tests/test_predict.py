@@ -30,11 +30,15 @@ def test_predict_onnx():
     image = os.path.join(ASSETS_DIR, 'cat.jpg')
     classifier = shrub.Classifier(model, labels)
     results = classifier.classify(image, 5)
-    for i in results:
-        print(i)
     excepted = [
+        "0.593685: n02123045 tabby, tabby cat",
+        "0.365331: n02124075 Egyptian cat",
+        "0.037985: n02123159 tiger cat",
+        "0.000605: n02971356 carton",
+        "0.000599: n03642806 laptop, laptop computer",
     ]
-    # assert(results == excepted)
+    assert(results == excepted)
+
 
 if __name__ == '__main__':
     test_predict_tflite()
