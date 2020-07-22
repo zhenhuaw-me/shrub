@@ -1,7 +1,10 @@
+import logging
 import numpy as np
 from PIL import Image
 
 from shrub.tflite import TFLiteRunner
+
+logger = logging.getLogger('shrub')
 
 
 class Classifier:
@@ -10,11 +13,11 @@ class Classifier:
         runner_key = model.split('.')[-1]
         if runner_key == 'tflite':
             self.runner = TFLiteRunner(model)
-        elif runner_key == 'onnx':
-          from shrub.onnx import run as runner
-          self.runner = runner
+        # elif runner_key == 'onnx':
+        #   from shrub.onnx import run as runner
+        #   self.runner = runner
         else:
-          raise ValueError("Unsupported runner with model %s" % model)
+            raise ValueError("Unsupported runner with model %s" % model)
         self.quantized = self.runner.quantized
         self.model = self.runner.parse()
 
@@ -27,20 +30,26 @@ class Classifier:
         input_data = np.reshape(img, (1, 224, 224, 3))
         if not self.quantized:
             input_data = input_data.astype('float32')
-            MEAN = [0.485, 0.456, 0.406]
-            STD = [0.229, 0.224, 0.225]
+            # MEAN = [0.485, 0.456, 0.406]
+            # STD = [0.229, 0.224, 0.225]
+            MEAN = 127.5  # TensorFlow...
+            STD = 127.5
             input_data = ((input_data - MEAN) / STD).astype('float32')
         return input_data
 
-    def classify(self, image):
+    def classify(self, image, top=5):
+        logger.debug("classifying %s" % image)
         inputs = self.model.inputs
         inputs[0].ndarray = self.preprocess(image)
         outputs = self.runner.run(inputs)
-        output = outputs[0].ndarray.flatten()
 
-        top_k = output.argsort()[-5:][::-1]
-        for i in top_k:
+        output = outputs[0].ndarray.flatten()
+        topN = output.argsort()[-top:][::-1]
+        results = list()
+        for i in topN:
             if self.quantized:
-                print('{:08.6f}: {}'.format(float(output[i] / 255.0), self.labels[i]))
+                ret = ('{:08.6f}: {}'.format(float(output[i] / 255.0), self.labels[i]))
             else:
-                print('{:08.6f}: {}'.format(float(output[i]), self.labels[i]))
+                ret = ('{:08.6f}: {}'.format(float(output[i]), self.labels[i]))
+            results.append(ret)
+        return results

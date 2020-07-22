@@ -5,6 +5,7 @@ from shrub import network
 
 logger = logging.getLogger('shrub')
 
+
 class TFLiteRunner:
     def __init__(self, path: str):
         self.path = path
