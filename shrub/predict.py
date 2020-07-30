@@ -60,13 +60,12 @@ class Classifier:
             output = softmax(output)
         output = output.squeeze()
 
-        # print(output.argsort()[::-1])
         topN = output.argsort()[-top:][::-1]
         results = list()
         for i in topN:
             if self.quantized:
-                ret = ('{:08.6f}: {}'.format(float(output[i] / 255.0), self.labels[i]))
+                ret = ('{:06.4f}: {}'.format(float(output[i] / 255.0), self.labels[i]))
             else:
-                ret = ('{:08.6f}: {}'.format(float(output[i]), self.labels[i]))
+                ret = ('{:06.4f}: {}'.format(float(output[i]), self.labels[i]))
             results.append(ret)
         return results

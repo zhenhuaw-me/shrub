@@ -15,11 +15,11 @@ def test_predict_tflite():
     classifier = shrub.Classifier(model, labels)
     results = classifier.classify(image, 5)
     excepted = [
-        '0.460855: 286:Egyptian cat',
-        '0.347551: 282:tabby, tabby cat',
-        '0.116638: 283:tiger cat',
-        '0.001217: 682:notebook, notebook computer',
-        '0.001146: 288:lynx, catamount',
+        "0.4609: 286:Egyptian cat",
+        "0.3476: 282:tabby, tabby cat",
+        "0.1166: 283:tiger cat",
+        "0.0012: 682:notebook, notebook computer",
+        "0.0011: 288:lynx, catamount",
     ]
     assert(results == excepted)
 
@@ -31,11 +31,11 @@ def test_predict_onnx():
     classifier = shrub.Classifier(model, labels)
     results = classifier.classify(image, 5)
     excepted = [
-        "0.593685: n02123045 tabby, tabby cat",
-        "0.365331: n02124075 Egyptian cat",
-        "0.037985: n02123159 tiger cat",
-        "0.000605: n02971356 carton",
-        "0.000599: n03642806 laptop, laptop computer",
+        "0.5937: n02123045 tabby, tabby cat",
+        "0.3653: n02124075 Egyptian cat",
+        "0.0380: n02123159 tiger cat",
+        "0.0006: n02971356 carton",
+        "0.0006: n03642806 laptop, laptop computer",
     ]
     assert(results == excepted)
 
