@@ -1,6 +1,7 @@
 from shrub import network
 from shrub import onnx
 from shrub import tflite
+from shrub import mapping
 from shrub.tflite import TFLiteRunner
 from shrub.onnx import ONNXRunner
 from shrub.predict import Classifier
@@ -17,6 +18,7 @@ __all__ = [
     network,
     onnx,
     tflite,
+    mapping,
     util,
     Classifier,
     TFLiteRunner,
