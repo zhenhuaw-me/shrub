@@ -3,6 +3,7 @@ import tflite
 
 from shrub.common import BaseRunner
 from shrub.network import Model, Tensor
+from shrub.mapping import DTYPE_TFLITE2NAME
 
 logger = logging.getLogger('shrub')
 
@@ -34,15 +35,13 @@ class TFLiteRunner(BaseRunner):
             return self.model
         g = self._getGraph()
         name = 'Unknown' if g.Name() is None else g.Name().decode('utf-8')
-        o0 = g.Tensors(g.Outputs(0)).Type()
-        assert (o0 == tflite.TensorType.FLOAT32)
-        dtype = 'float32'
+        dtype = DTYPE_TFLITE2NAME[g.Tensors(g.Outputs(0)).Type()]
         model = Model(name, dtype)
 
         def create_tensor(graph, index):
             t = graph.Tensors(index)
             name = t.Name().decode('utf-8')
-            dtype = 'float32'
+            dtype = DTYPE_TFLITE2NAME[graph.Tensors(graph.Outputs(0)).Type()]
             shape = t.ShapeAsNumpy()
             return Tensor(name, shape, dtype)
 
