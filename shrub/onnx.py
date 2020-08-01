@@ -2,7 +2,6 @@ import logging
 
 from shrub.common import BaseRunner
 from shrub.network import Model, Tensor
-from shrub.mapping import DTYPE_ONNX2NAME
 
 logger = logging.getLogger('shrub')
 
