@@ -2,6 +2,7 @@ import logging
 
 from shrub.common import BaseRunner
 from shrub.network import Model, Tensor
+from shrub.mapping import DTYPE_ONNX2NAME
 
 logger = logging.getLogger('shrub')
 
@@ -32,14 +33,12 @@ class ONNXRunner(BaseRunner):
         TYPE_MAPPING = {
             'tensor(int32)': 'int32',
             'tensor(float)': 'float32',
+            'tensor(uint8)': 'uint8',
         }
 
         sess = ort.InferenceSession(self.path)
-
         name = 'Unknown'
-        i0 = sess.get_inputs()[0]
-        assert (i0.type == 'tensor(float)')
-        dtype = 'float32'
+        dtype = TYPE_MAPPING[sess.get_outputs()[0].type]
         model = Model(name, dtype, layout=self.layout)
 
         def create_tensor(t):
