@@ -82,13 +82,13 @@ def genOP():
     print("[START] genOP\n")
     print("TensorFlow: %s" % tf.__version__)
 
-    IHW = (64, 64)
+    IHW = (5, 5)
     KHW = (3, 3)
-    IC = 64
+    IC = 2
     stridesHW = (1, 1)
     dilationHW = (1, 1)
     tflite_dtype = tf.float32
-    # tflite_dtype = tf.uint8
+    tflite_dtype = tf.uint8
 
     op = OpGenerator(
         IHW,
