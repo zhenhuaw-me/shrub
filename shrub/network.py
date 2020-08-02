@@ -144,10 +144,10 @@ def cmpTensors(t1, t2):
         dt2 = t2[i].dataAs('NHWC')
         if np.issubdtype(dt1.dtype, np.integer):
             atol = 1
-            rtol = 1e-5
+            rtol = 1e-3
         else:
-            atol = 1e-5
-            rtol = 1e-5
+            atol = 1e-3
+            rtol = 1e-3
         if not np.allclose(dt1, dt2, atol=atol, rtol=rtol):
             logger.error("Tensor %d mismatch!" % i)
             return False
