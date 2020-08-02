@@ -140,17 +140,17 @@ def cmpTensors(t1, t2):
     """Compare Tensor list data"""
     assert (len(t1) == len(t2))
     for i in range(len(t2)):
-        msg = "Tensor %d mismatch!" % i
-        if t1[0].dtype == 'uint8':
-            np.testing.assert_allclose(t1[i].dataAs('NHWC'),
-                                       t2[i].dataAs('NHWC'),
-                                       err_msg=msg)
+        dt1 = t1[i].dataAs('NHWC')
+        dt2 = t2[i].dataAs('NHWC')
+        if np.issubdtype(dt1.dtype, np.integer):
+            atol = 1
+            rtol = 1e-5
         else:
-            np.testing.assert_allclose(t1[i].dataAs('NHWC'),
-                                       t2[i].dataAs('NHWC'),
-                                       atol=1e-3,
-                                       rtol=1e-3,
-                                       err_msg=msg)
+            atol = 1e-5
+            rtol = 1e-5
+        if not np.allclose(dt1, dt2, atol=atol, rtol=rtol):
+            logger.error("Tensor %d mismatch!" % i)
+            return False
     return True
 
 
