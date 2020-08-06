@@ -17,6 +17,7 @@ class QuantParam:
             raise ValueError("Invalid zero point %s" % zero_point)
         self.scale = scale
         self.zero_point = zero_point
+        self.quantized = True
 
     def asTuple(self):
         return tuple(self.scale, self.zero_point)
@@ -96,10 +97,6 @@ class Tensor:
                 self.ndarray = nhwc2nchw(ndarray)
             else:
                 raise ValueError("Shall not reach!")
-
-    def setQuantParam(self, scale: float, zero_point: int):
-        """Setup quantization parameters - uint8 schema"""
-        self.quant.set(scale, zero_point)
 
     def spatialShape(self):
         if self.layout == 'NCHW':

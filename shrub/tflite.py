@@ -43,7 +43,9 @@ class TFLiteRunner(BaseRunner):
             name = t.Name().decode('utf-8')
             dtype = DTYPE_TFLITE2NAME[graph.Tensors(graph.Outputs(0)).Type()]
             shape = t.ShapeAsNumpy()
-            return Tensor(name, shape, dtype)
+            tensor = Tensor(name, shape, dtype)
+            tensor.quant = self._parseTensorQuantParam(index)
+            return tensor
 
         for i in range(g.InputsLength()):
             idx = g.Inputs(i)
@@ -56,6 +58,19 @@ class TFLiteRunner(BaseRunner):
 
         self.model = model
         return model
+
+    def _parseTensorQuantParam(self, tensor_index):
+        g = self._getGraph()
+        t = g.Tensors(tensor_index)
+        quant = t.Quantization()
+        if (t.Type() == tflite.TensorType.UINT8) and (quant is not None):
+            assert(quant.ScaleAsNumpy().size == 1), "Per-tensor support only currently"
+            assert(quant.ZeroPointAsNumpy().size == 1), "Per-tensor support only currently"
+            scale = float(quant.ScaleAsNumpy()[0])
+            zero_point = int(quant.ZeroPointAsNumpy()[0])
+            return QuantParam(scale, zero_point)
+        else:
+            return QuantParam(1.0, 127, quantized=False)
 
     def parseQuantParam(self, inputs=True):
         """Parse the quantization parameter of inputs/outputs of an model."""
@@ -71,14 +86,8 @@ class TFLiteRunner(BaseRunner):
         params = list()
         for i in range(length):
             idx = getIndex(i)
-            t = g.Tensors(idx)
-            quant = t.Quantization()
-            assert(quant.ScaleAsNumpy().size == 1), "Per-tensor support only currently"
-            assert(quant.ZeroPointAsNumpy().size == 1), "Per-tensor support only currently"
-            scale = float(quant.ScaleAsNumpy()[0])
-            zero_point = int(quant.ZeroPointAsNumpy()[0])
-            params.append(QuantParam(scale, zero_point))
-
+            param = self._parseTensorQuantParam(idx)
+            params.append(param)
         return params
 
     def run(self, inputs=None):
