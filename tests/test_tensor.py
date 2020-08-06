@@ -1,5 +1,5 @@
 import numpy as np
-from shrub.network import Tensor
+from shrub.network import Tensor, QuantParam
 
 
 def test_quantize():
@@ -12,7 +12,7 @@ def test_quantize():
     # run
     t = Tensor('test', (len(fp32)), 'float32', quantized=False)
     t.ndarray = np.asarray(fp32).astype('float32')
-    t.setQuantParam(scale, zero_point)
+    t.quant = QuantParam(scale, zero_point, False)
     t.quantize()
 
     # verify
@@ -34,7 +34,7 @@ def test_dequantize():
     # run
     t = Tensor('test', (len(uint8)), 'uint8', quantized=True)
     t.ndarray = np.asarray(uint8).astype('uint8')
-    t.setQuantParam(scale, zero_point)
+    t.quant = QuantParam(scale, zero_point, True)
     t.dequantize()
 
     # verify

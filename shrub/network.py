@@ -17,7 +17,6 @@ class QuantParam:
             raise ValueError("Invalid zero point %s" % zero_point)
         self.scale = scale
         self.zero_point = zero_point
-        self.quantized = True
 
     def asTuple(self):
         return tuple(self.scale, self.zero_point)
