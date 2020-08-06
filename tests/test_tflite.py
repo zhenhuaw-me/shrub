@@ -1,6 +1,7 @@
 import os
 import logging
 import shrub
+import numpy as np
 
 shrub.util.formatLogging(logging.DEBUG)
 
@@ -25,6 +26,20 @@ def test_parse():
     assert((m.outputs[0].shape == [1, 1001]).all())
 
 
+def test_parseQuantParam():
+    path = os.path.join(ASSETS_DIR, 'conv.uint8.tflite')
+
+    params = shrub.tflite.parseQuantParam(path, True)
+    assert(len(params) == 1)
+    assert(np.isclose(params[0].scale, 0.008130080997943878))
+    assert(params[0].zero_point == 100)
+
+    params = shrub.tflite.parseQuantParam(path, False)
+    assert(len(params) == 1)
+    assert(np.isclose(params[0].scale, 0.0235294122248888))
+    assert(params[0].zero_point == 0)
+
+
 def test_run():
     path = os.path.join(ASSETS_DIR, 'mobilenet_v2_1.0_224.tflite')
     m0 = shrub.tflite.parse(path)
@@ -36,4 +51,5 @@ def test_run():
 
 if __name__ == '__main__':
     test_parse()
+    test_parseQuantParam()
     test_run()

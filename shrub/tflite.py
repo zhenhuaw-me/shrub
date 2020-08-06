@@ -2,7 +2,7 @@ import logging
 import tflite
 
 from shrub.common import BaseRunner
-from shrub.network import Model, Tensor
+from shrub.network import Model, Tensor, QuantParam
 from shrub.mapping import DTYPE_TFLITE2NAME
 
 logger = logging.getLogger('shrub')
@@ -57,6 +57,30 @@ class TFLiteRunner(BaseRunner):
         self.model = model
         return model
 
+    def parseQuantParam(self, inputs=True):
+        """Parse the quantization parameter of inputs/outputs of an model."""
+        g = self._getGraph()
+
+        if inputs:
+            length = g.InputsLength()
+            getIndex = g.Inputs
+        else:
+            length = g.OutputsLength()
+            getIndex = g.Outputs
+
+        params = list()
+        for i in range(length):
+            idx = getIndex(i)
+            t = g.Tensors(idx)
+            quant = t.Quantization()
+            assert(quant.ScaleAsNumpy().size == 1), "Per-tensor support only currently"
+            assert(quant.ZeroPointAsNumpy().size == 1), "Per-tensor support only currently"
+            scale = float(quant.ScaleAsNumpy()[0])
+            zero_point = int(quant.ZeroPointAsNumpy()[0])
+            params.append(QuantParam(scale, zero_point))
+
+        return params
+
     def run(self, inputs=None):
         """Run TFLite, optionally take/return input/output data (Tensor list)."""
         try:
@@ -98,3 +122,9 @@ def parse(path: str):
     """ Load TFLite model, and build a `Modole` object from it."""
     runner = TFLiteRunner(path)
     return runner.parse()
+
+
+def parseQuantParam(path: str, inputs=True):
+    """Parse the quantization parameter of inputs/outputs of an model."""
+    runner = TFLiteRunner(path)
+    return runner.parseQuantParam(inputs)
