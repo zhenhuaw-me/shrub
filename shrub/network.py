@@ -6,6 +6,22 @@ import numpy as np
 logger = logging.getLogger('shrub')
 
 
+class QuantParam:
+    """Quantization Parameter of TensorFlow uint8 approach."""
+    def __init__(self, scale=1.0, zero_point=127, quantized=True):
+        self.quantized = quantized
+        self.set(scale, zero_point)
+
+    def set(self, scale, zero_point):
+        if (zero_point < 0 or zero_point > 255):
+            raise ValueError("Invalid zero point %s" % zero_point)
+        self.scale = scale
+        self.zero_point = zero_point
+
+    def asTuple(self):
+        return tuple(self.scale, self.zero_point)
+
+
 class Tensor:
     """The Tensor class to hold semantic and data.
 
@@ -39,10 +55,7 @@ class Tensor:
                 self.shape = nchw2nhwc(shape)
                 self.ndarray = nchw2nhwc(ndarray)
 
-        # quantization attributes, default to `uint8` schema
-        self.quantized = quantized
-        self.scale = 1.0
-        self.zero_point = 127
+        self.quant = QuantParam(quantized=quantized)
 
     def _supported_layout(self, layout: str):
         if layout not in ['NCHW', 'NHWC']:
@@ -84,12 +97,9 @@ class Tensor:
             else:
                 raise ValueError("Shall not reach!")
 
-    def setQuantizeParam(self, scale: float, zero_point: int):
+    def setQuantParam(self, scale: float, zero_point: int):
         """Setup quantization parameters - uint8 schema"""
-        self.scale = scale
-        self.zero_point = zero_point
-        if (zero_point < 0 or zero_point > 255):
-            raise ValueError("Invalid zero point %s" % zero_point)
+        self.quant.set(scale, zero_point)
 
     def spatialShape(self):
         if self.layout == 'NCHW':
@@ -98,6 +108,10 @@ class Tensor:
             return self.shape[1:-1]
         else:
             raise ValueError("Unknwon layout %s" % self.layout)
+
+    @property
+    def quantized(self):
+        return self.quant.quantized
 
     def quantize(self):
         """Quantize the tensor data to uint8 if it is not quantized yet
@@ -108,8 +122,8 @@ class Tensor:
         assert(self.dtype == 'float32')
         assert(self.ndarray is not None)
         fp32 = self.ndarray
-        scaled = np.divide(fp32, self.scale)
-        shiftted = np.add(scaled, self.zero_point)
+        scaled = np.divide(fp32, self.quant.scale)
+        shiftted = np.add(scaled, self.quant.zero_point)
         self.ndarray = np.clip(shiftted, 0, 255).astype('uint8')
         self.dtype = 'uint8'
 
@@ -122,8 +136,8 @@ class Tensor:
         assert(self.dtype == 'uint8')
         assert(self.ndarray is not None)
         int32 = self.ndarray.astype('int32')
-        shiftted = np.subtract(int32, self.zero_point)
-        fp32 = np.multiply(shiftted.astype('float32'), self.scale)
+        shiftted = np.subtract(int32, self.quant.zero_point)
+        fp32 = np.multiply(shiftted.astype('float32'), self.quant.scale)
         self.ndarray = fp32
         self.dtype = 'float32'
 
