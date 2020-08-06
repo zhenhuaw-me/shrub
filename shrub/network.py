@@ -146,18 +146,14 @@ class Tensor:
                 low=-1, high=1, size=self.shape).astype(self.dtype)
 
 
-def cmpTensors(t1, t2):
+def cmpTensors(t1, t2, atol=1e-5, rtol=1e-5):
     """Compare Tensor list data"""
     assert (len(t1) == len(t2))
     for i in range(len(t2)):
         dt1 = t1[i].dataAs('NHWC')
         dt2 = t2[i].dataAs('NHWC')
-        if np.issubdtype(dt1.dtype, np.integer):
-            atol = 1
-            rtol = 1e-3
-        else:
-            atol = 1e-3
-            rtol = 1e-3
+        # if np.issubdtype(dt1.dtype, np.integer):
+        #     atol = 1
         if not np.allclose(dt1, dt2, atol=atol, rtol=rtol):
             logger.error("Tensor %d mismatch!" % i)
             return False
