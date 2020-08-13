@@ -22,8 +22,7 @@ Install via `pip install shrub`. *A lot dependency will be installed too, take c
 
 `shrub.network` is where the `Tensor` and `Model` locates.
 Others are basically runners, try and hack them!
-
-No documents so far :(
+[API documents](https://jackwish.net/shrub/docs)
 
 
 ## Contributing

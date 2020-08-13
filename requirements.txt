@@ -2,6 +2,7 @@ flake8
 numpy
 onnx
 onnxruntime
+pdoc
 pillow
 pytest
 setuptools

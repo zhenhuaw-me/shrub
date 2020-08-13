@@ -1043,13 +1043,6 @@ table {
 
 
 
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="nn.m.html">shrub.nn</a></li>
-        <li class="mono"><a href="tflite.m.html">shrub.tflite</a></li>
-        <li class="mono"><a href="util.m.html">shrub.util</a></li>
-      </ul>
-    </li>
     </ul>
   </div>
 
@@ -1066,9 +1059,36 @@ table {
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub', this);">Show source &equiv;</a></p>
   <div id="source-shrub" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">nn</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">tflite</span>
+    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">network</span>
+<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">onnx</span>
+<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">tflite</span>
+<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">mapping</span>
+<span class="kn">from</span> <span class="nn">shrub.tflite</span> <span class="kn">import</span> <span class="n">TFLiteRunner</span>
+<span class="kn">from</span> <span class="nn">shrub.onnx</span> <span class="kn">import</span> <span class="n">ONNXRunner</span>
+<span class="kn">from</span> <span class="nn">shrub.predict</span> <span class="kn">import</span> <span class="n">Classifier</span>
+<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">util</span>
+
+
+<span class="c1"># package metadata</span>
+<span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;shrub&#39;</span>
+<span class="n">VERSION</span> <span class="o">=</span> <span class="s1">&#39;0.0.2.post5&#39;</span>
+<span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Toys to play around with machine learning&quot;</span>
+<span class="n">LICENSE</span> <span class="o">=</span> <span class="s1">&#39;Apache License Version 2.0&#39;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">network</span><span class="p">,</span>
+    <span class="n">onnx</span><span class="p">,</span>
+    <span class="n">tflite</span><span class="p">,</span>
+    <span class="n">mapping</span><span class="p">,</span>
+    <span class="n">util</span><span class="p">,</span>
+    <span class="n">Classifier</span><span class="p">,</span>
+    <span class="n">TFLiteRunner</span><span class="p">,</span>
+    <span class="n">ONNXRunner</span><span class="p">,</span>
+    <span class="n">NAME</span><span class="p">,</span>
+    <span class="n">VERSION</span><span class="p">,</span>
+    <span class="n">DESCRIPTION</span><span class="p">,</span>
+    <span class="n">LICENSE</span><span class="p">,</span>
+<span class="p">]</span>
 </pre></div>
 
   </div>
@@ -1079,25 +1099,6 @@ table {
 
 
 
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="nn.m.html">shrub.nn</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="tflite.m.html">shrub.tflite</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="util.m.html">shrub.util</a></p>
-      
-  
-
-      </div>
   </section>
 
     </article>
