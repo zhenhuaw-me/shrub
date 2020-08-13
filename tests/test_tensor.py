@@ -1,5 +1,5 @@
 import numpy as np
-from shrub.network import Tensor, QuantParam
+from shrub.network import Tensor, QuantParam, transform
 
 
 def test_quantize():
@@ -45,7 +45,20 @@ def test_dequantize():
     for i in range(len(fp32)):
         assert(fp32[i] == dequantized[i])
 
+def test_transform():
+    assert(transform([1, 2, 3, 4], 'NCHW', 'NHWC') == [1, 3, 4, 2])
+    assert(transform([1, 2, 3, 4], 'NHWC', 'NCHW') == [1, 4, 2, 3])
+    assert(transform([1, 2, 3], 'ABC', 'CAB') == [3, 1, 2])
+
+    inda = np.arange(120).reshape(2, 3, 4, 5)
+    onda = transform(inda, 'NHWC', 'NCHW')
+    assert(np.equal(onda, inda.transpose(0, 3, 1, 2)).all())
+
+    onda = transform(inda, 'NCHW', 'NHWC')
+    assert(np.equal(onda, inda.transpose(0, 2, 3, 1)).all())
+
 
 if __name__ == '__main__':
+    test_transform()
     test_quantize()
     test_dequantize()

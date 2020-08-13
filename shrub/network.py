@@ -232,6 +232,29 @@ class Model:
         self.inputs = list()
         self.outputs = list()
 
+def transform(shape_or_ndarray, srcLayout: str, targetLayout: str):
+    assert(len(srcLayout) == len(targetLayout))
+    if (srcLayout == targetLayout):
+        return shape_or_ndarray
+
+    def getPerm(src, target):
+        char2index = dict()
+        for i in range(len(src)):
+            c = src[i]
+            char2index[c] = i
+        return [char2index[c] for c in target]
+    perm = getPerm(srcLayout, targetLayout)
+
+    if isinstance(shape_or_ndarray, (list, tuple)):
+        shape = shape_or_ndarray
+        return [shape[p] for p in perm]
+    elif isinstance(shape_or_ndarray, np.ndarray):
+        nda = shape_or_ndarray
+        return nda.transpose(perm)
+    else:
+        assert(False)
+        return None
+
 
 def nhwc2nchw(shape_or_ndarray):
     if isinstance(shape_or_ndarray, (list, tuple)):
