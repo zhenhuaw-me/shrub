@@ -39,63 +39,25 @@ class Tensor:
                  ndarray=None):
         self.name = name
         self.dtype = dtype
-
-        # layout attributes
         self.layout = layout
-        self._supported_layout(layout)
-        self._supported_layout(src_layout)
-        if self._same_layout(src_layout):
-            self.shape = shape
-            self.ndarray = ndarray
-        else:
-            if self.layout == 'NCHW':
-                self.shape = nhwc2nchw(shape)
-                self.ndarray = nhwc2nchw(ndarray)
-            elif self.layout == 'NHWC':
-                self.shape = nchw2nhwc(shape)
-                self.ndarray = nchw2nhwc(ndarray)
+        self.shape = transform(shape, src_layout, layout)
+        self.ndarray = transform(ndarray, src_layout, layout)
 
         self.quant = QuantParam(quantized=quantized)
 
-    def _supported_layout(self, layout: str):
-        if layout not in ['NCHW', 'NHWC']:
-            raise ValueError("Unsupported layout: %s!" % layout)
-
-    def _same_layout(self, layout: str):
-        return (layout == self.layout)
-
-    def _convert_to_layout(self, shape_or_ndarray, layout: str):
-        self._supported_layout(layout)
-        if self._same_layout(layout):
-            return shape_or_ndarray
-        else:
-            if layout == 'NCHW':
-                return nhwc2nchw(shape_or_ndarray)
-            elif layout == 'NHWC':
-                return nchw2nhwc(shape_or_ndarray)
-            else:
-                raise ValueError("Shall not reach!")
-
     def shapeAs(self, layout: str):
         """Obtain shape with given layout, transform automatically."""
-        return self._convert_to_layout(self.shape, layout)
+        return transform(self.shape, self.layout, layout)
 
     def dataAs(self, layout: str):
         """Obtain data with given layout, transform automatically."""
-        return self._convert_to_layout(self.ndarray, layout)
+        if (len(self.ndarray.shape) != len(self.layout)):
+            return self.ndarray
+        else:
+            return transform(self.ndarray, self.layout, layout)
 
     def setData(self, ndarray, layout):
-        self._supported_layout(layout)
-        if self._same_layout(layout):
-            assert((self.shape == ndarray.shape).all())
-            self.ndarray = ndarray
-        else:
-            if layout == 'NCHW':
-                self.ndarray = nchw2nhwc(ndarray)
-            elif layout == 'NHWC':
-                self.ndarray = nhwc2nchw(ndarray)
-            else:
-                raise ValueError("Shall not reach!")
+        self.ndarray = transform(ndarray, layout, self.layout)
 
     def spatialShape(self):
         if self.layout == 'NCHW':
@@ -231,6 +193,7 @@ class Model:
     def clear(self):
         self.inputs = list()
         self.outputs = list()
+
 
 def transform(shape_or_ndarray, srcLayout: str, targetLayout: str):
     assert(len(srcLayout) == len(targetLayout))

@@ -45,6 +45,7 @@ def test_dequantize():
     for i in range(len(fp32)):
         assert(fp32[i] == dequantized[i])
 
+
 def test_transform():
     assert(transform([1, 2, 3, 4], 'NCHW', 'NHWC') == [1, 3, 4, 2])
     assert(transform([1, 2, 3, 4], 'NHWC', 'NCHW') == [1, 4, 2, 3])
