@@ -56,11 +56,12 @@ def genOP():
     print("[START] genOP\n")
     print("TensorFlow: %s" % tf.__version__)
 
-    shape = (1, 8, 8, 4)
+    shape = (1, 10, 10, 3)
     ksize = (2, 2)
-    strides = (1, 1)
+    strides = (2, 2)
 
-    poolOp = tf.nn.avg_pool
+    # poolOp = tf.nn.avg_pool
+    poolOp = tf.nn.max_pool
 
     tflite_dtype = tf.float32
     # tflite_dtype = tf.uint8

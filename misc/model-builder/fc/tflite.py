@@ -22,10 +22,13 @@ class OpGenerator:
                 name=self.iname)
             weights = tf.Variable(tf.truncated_normal(self.fshape, stddev=0.1),
                                   tf.float32)
+            # net = tf.matmul(a=net, b=weights, name=self.oname)
             net = tf.matmul(a=net, b=weights)
             bias = tf.Variable(tf.truncated_normal(
                 [self.OC, ], stddev=1), tf.float32)
-            net = tf.nn.bias_add(net, bias, name=self.oname)
+            # net = tf.nn.bias_add(net, bias, name=self.oname)
+            net = tf.nn.bias_add(net, bias)
+            net = tf.nn.relu6(net, name=self.oname)
             sess.run(tf.global_variables_initializer())
             constant_graph = graph_util.convert_variables_to_constants(
                 sess, sess.graph_def, [self.oname])
@@ -40,8 +43,8 @@ class OpGenerator:
             output_arrays=[self.oname, ])
         converter.inference_type = self.tflite_dtype
         converter.inference_inpute_type = self.tflite_dtype
-        converter.default_ranges_stats = (0, 6)
-        converter.quantized_input_stats = {self.iname: (100, 123.0)}
+        # converter.default_ranges_stats = (0, 6)
+        # converter.quantized_input_stats = {self.iname: (100, 123.0)}
 
         # converter.post_training_quantize = True
         # converter.target_ops = set([OpsSet.TFLITE_BUILTINS])
@@ -54,9 +57,9 @@ def genOP():
     print("[START] genOP\n")
     print("TensorFlow: %s" % tf.__version__)
 
-    M = 1
-    N = 6
-    K = 8
+    M = 2
+    N = 3
+    K = 4
     tflite_dtype = tf.float32
     # tflite_dtype = tf.uint8
 
