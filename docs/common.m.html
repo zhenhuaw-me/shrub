@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>shrub API documentation</title>
+    <title>shrub.common API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1040,30 +1040,24 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
-    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
-      
+
+
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#shrub.common.BaseRunner">BaseRunner</a></span>
+        
+          
   <ul>
-    <li class="mono"><a href="#shrub.DESCRIPTION">DESCRIPTION</a></li>
-    <li class="mono"><a href="#shrub.LICENSE">LICENSE</a></li>
-    <li class="mono"><a href="#shrub.NAME">NAME</a></li>
-    <li class="mono"><a href="#shrub.VERSION">VERSION</a></li>
+    <li class="mono"><a href="#shrub.common.BaseRunner.__init__">__init__</a></li>
+    <li class="mono"><a href="#shrub.common.BaseRunner.parse">parse</a></li>
+    <li class="mono"><a href="#shrub.common.BaseRunner.run">run</a></li>
   </ul>
 
-    </li>
-
-
-
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="common.m.html">shrub.common</a></li>
-        <li class="mono"><a href="mapping.m.html">shrub.mapping</a></li>
-        <li class="mono"><a href="network.m.html">shrub.network</a></li>
-        <li class="mono"><a href="onnx.m.html">shrub.onnx</a></li>
-        <li class="mono"><a href="predict.m.html">shrub.predict</a></li>
-        <li class="mono"><a href="tflite.m.html">shrub.tflite</a></li>
-        <li class="mono"><a href="util.m.html">shrub.util</a></li>
+        </li>
       </ul>
     </li>
+
     </ul>
   </div>
 
@@ -1075,27 +1069,22 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">shrub</span> module</h1>
+  <h1 class="title"><span class="name">shrub.common</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub', this);">Show source &equiv;</a></p>
-  <div id="source-shrub" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">network</span>
-<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">onnx</span>
-<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">tflite</span>
-<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">mapping</span>
-<span class="kn">from</span> <span class="nn">shrub.tflite</span> <span class="kn">import</span> <span class="n">TFLiteRunner</span>
-<span class="kn">from</span> <span class="nn">shrub.onnx</span> <span class="kn">import</span> <span class="n">ONNXRunner</span>
-<span class="kn">from</span> <span class="nn">shrub.predict</span> <span class="kn">import</span> <span class="n">Classifier</span>
-<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">util</span>
-
-
-<span class="c1"># package metadata</span>
-<span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;shrub&#39;</span>
-<span class="n">VERSION</span> <span class="o">=</span> <span class="s1">&#39;0.0.2.post5&#39;</span>
-<span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Toys to play around with machine learning&quot;</span>
-<span class="n">LICENSE</span> <span class="o">=</span> <span class="s1">&#39;Apache License Version 2.0&#39;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="n">VERSION</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.common', this);">Show source &equiv;</a></p>
+  <div id="source-shrub.common" class="source">
+    <div class="codehilite"><pre><span></span><span class="n">lass</span> <span class="n">BaseRunner</span><span class="p">:</span>
+   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+   <span class="nd">@property</span>
+   <span class="k">def</span> <span class="nf">quantized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Runner.quantized() not implemented!&quot;</span><span class="p">)</span>
+   <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Runner.parse() not implemented!&quot;</span><span class="p">)</span>
+   <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+       <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Runner.run() not implemented!&quot;</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1103,86 +1092,143 @@ table {
   </header>
 
   <section id="section-items">
-    <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="shrub.DESCRIPTION" class="name">var <span class="ident">DESCRIPTION</span></p>
+
+
+    <h2 class="section-title" id="header-classes">Classes</h2>
       
+      <div class="item">
+      <p id="shrub.common.BaseRunner" class="name">class <span class="ident">BaseRunner</span></p>
+      
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.common.BaseRunner', this);">Show source &equiv;</a></p>
+  <div id="source-shrub.common.BaseRunner" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BaseRunner</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">quantized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Runner.quantized() not implemented!&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Runner.parse() not implemented!&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Runner.run() not implemented!&quot;</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#shrub.common.BaseRunner">BaseRunner</a></li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="shrub.common.BaseRunner.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, path)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.common.BaseRunner.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-shrub.common.BaseRunner.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="shrub.common.BaseRunner.parse">
+    <p>def <span class="ident">parse</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.common.BaseRunner.parse', this);">Show source &equiv;</a></p>
+  <div id="source-shrub.common.BaseRunner.parse" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Runner.parse() not implemented!&quot;</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="shrub.common.BaseRunner.run">
+    <p>def <span class="ident">run</span>(</p><p>self, inputs=None)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.common.BaseRunner.run', this);">Show source &equiv;</a></p>
+  <div id="source-shrub.common.BaseRunner.run" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Runner.run() not implemented!&quot;</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+          <h3>Instance variables</h3>
+            <div class="item">
+            <p id="shrub.common.BaseRunner.model" class="name">var <span class="ident">model</span></p>
+            
+
+            
   
   <div class="source_cont">
 </div>
 
-      </div>
-      <div class="item">
-      <p id="shrub.LICENSE" class="name">var <span class="ident">LICENSE</span></p>
-      
+            </div>
+            <div class="item">
+            <p id="shrub.common.BaseRunner.path" class="name">var <span class="ident">path</span></p>
+            
+
+            
   
   <div class="source_cont">
 </div>
 
-      </div>
-      <div class="item">
-      <p id="shrub.NAME" class="name">var <span class="ident">NAME</span></p>
-      
+            </div>
+            <div class="item">
+            <p id="shrub.common.BaseRunner.quantized" class="name">var <span class="ident">quantized</span></p>
+            
+
+            
   
   <div class="source_cont">
 </div>
 
+            </div>
       </div>
-      <div class="item">
-      <p id="shrub.VERSION" class="name">var <span class="ident">VERSION</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
       </div>
 
-
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="common.m.html">shrub.common</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="mapping.m.html">shrub.mapping</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="network.m.html">shrub.network</a></p>
-      
-  
-    <div class="desc"><p>Utils make it easy to compare data across different frameworks</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="onnx.m.html">shrub.onnx</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="predict.m.html">shrub.predict</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="tflite.m.html">shrub.tflite</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="util.m.html">shrub.util</a></p>
-      
-  
-
-      </div>
   </section>
 
     </article>
