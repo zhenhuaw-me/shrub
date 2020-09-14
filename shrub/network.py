@@ -219,47 +219,6 @@ def transform(shape_or_ndarray, srcLayout: str, targetLayout: str):
         return None
 
 
-def nhwc2nchw(shape_or_ndarray):
-    if isinstance(shape_or_ndarray, (list, tuple)):
-        shape = shape_or_ndarray
-        if len(shape) == 4:
-            return (shape[0], shape[3], shape[1], shape[2])
-        else:
-            return shape
-    elif isinstance(shape_or_ndarray, np.ndarray):
-        nda = shape_or_ndarray
-        if len(nda.shape) == 4:
-            return nda.transpose(0, 3, 1, 2)
-        else:
-            return nda
-    else:
-        return shape_or_ndarray
-
-
-def nchw2nhwc(shape_or_ndarray):
-    if isinstance(shape_or_ndarray, (list, tuple)):
-        shape = shape_or_ndarray
-        if len(shape) == 4:
-            return (shape[0], shape[2], shape[3], shape[1])
-        else:
-            return shape
-    elif isinstance(shape_or_ndarray, np.ndarray):
-        nda = shape_or_ndarray
-        if len(nda.shape) == 4:
-            return nda.transpose(0, 2, 3, 1)
-        else:
-            return nda
-    else:
-        return shape_or_ndarray
-
-
-def oihw2hwoi(shape):
-    if len(shape) != 4:
-        logger.warning("oihw2hwoi requires 4D shape")
-        return shape
-    return (shape[2], shape[3], shape[0], shape[1])
-
-
 def store(ndarray, fname):
     # caller shall handle layout transform
     ndarray = ndarray.reshape((np.prod(ndarray.shape), ))
@@ -273,6 +232,9 @@ def load(shape, fname, dtype):
     # caller shall handle layout transform
     # image?
     if fname.endswith('.jpg') or fname.endswith('.png'):
+        def loadImage(fname):
+            import imageio
+            return np.asarray(imageio.imread(fname))
         loaded = loadImage(fname)
         if (len(shape) == 4 and shape[1:] != loaded.shape) or \
            (len(shape) != 4 and shape != loaded.shape):
@@ -285,73 +247,3 @@ def load(shape, fname, dtype):
     loaded = np.loadtxt(fname).astype(dtype)
     loaded = loaded.reshape(shape)
     return loaded
-
-
-def loadImage(fname):
-    import imageio
-    return np.asarray(imageio.imread(fname))
-
-
-def plot(model_path, figure_path=None, tensor_count=10):
-    import tensorflow as tf
-    from tensorflow.python.platform import gfile
-    from tensorflow.python.framework import tensor_util
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    from .util import suppressStdout, suppressLogging
-
-    class Weights:
-        def __init__(self, name, ndarray):
-            self.name = name
-            self.ndarray = ndarray
-
-    def _getValuableWeights(pb_path, tensor_count=10):
-        # load all weights
-        with suppressStdout(), suppressLogging():
-            with tf.Session() as sess:
-                with gfile.FastGFile(pb_path, 'rb') as f:
-                    graph_def = tf.GraphDef()
-                    graph_def.ParseFromString(f.read())
-                    sess.graph.as_default()
-                    tf.import_graph_def(graph_def, name='')
-                    graph_nodes = [n for n in graph_def.node]
-
-        # select 10- weight tensors with most values
-        threshold = 1024
-        selected = []
-        weights = [n for n in graph_nodes if n.op == 'Const']
-        while True:
-            for weight in weights:
-                v = tensor_util.MakeNdarray(weight.attr['value'].tensor)
-                if (np.prod(v.shape) > threshold):
-                    selected.append(Weights(weight.name, v))
-            if (len(selected) > tensor_count):
-                threshold *= 2
-                selected.clear()
-            else:
-                break
-        print("Selected %d weight tensor from %s" %
-              (len(selected), model_path))
-        return selected
-
-    def _plotDistribution(weights, figure_path=None):
-        for w in weights:
-            wv = w.ndarray.reshape(np.prod(w.ndarray.shape))
-            sns.distplot(wv,
-                         hist=False,
-                         kde=True,
-                         kde_kws={'linewidth': 2},
-                         label=w.name)
-
-        plt.legend(prop={'size': 10})
-        plt.xlabel("Value Distribution of Selected Tensors")
-        plt.ylabel("Density")
-        fig = plt.gcf()
-        fig.set_size_inches(10, 6)
-        if figure_path:
-            plt.savefig(figure_path)
-        else:
-            plt.show()
-
-    weights = _getValuableWeights(model_path, tensor_count)
-    _plotDistribution(weights, figure_path)
