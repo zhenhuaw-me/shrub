@@ -7,15 +7,7 @@ logger = logging.getLogger('shrub')
 
 
 class ONNXRunner(BaseRunner):
-    def __init__(self, path: str, layout: str = 'NCHW'):
-        """ Runner for ONNX model
-
-        Parameters
-        path: path to ONNX model.
-        layout: the input output layout of the model.
-        """
-        super().__init__(path)
-        self.layout = layout
+    DefaultLayout = 'NCHW'
 
     @property
     def quantized(self):

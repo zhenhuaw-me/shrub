@@ -9,8 +9,7 @@ logger = logging.getLogger('shrub')
 
 
 class TFLiteRunner(BaseRunner):
-    def __init__(self, path: str):
-        super().__init__(path)
+    DefaultLayout = 'NHWC'
 
     def _getGraph(self):
         with open(self.path, 'rb') as f:
@@ -36,14 +35,14 @@ class TFLiteRunner(BaseRunner):
         g = self._getGraph()
         name = 'Unknown' if g.Name() is None else g.Name().decode('utf-8')
         dtype = DTYPE_TFLITE2NAME[g.Tensors(g.Outputs(0)).Type()]
-        model = Model(name, dtype)
+        model = Model(name, dtype, self.layout)
 
         def create_tensor(graph, index):
             t = graph.Tensors(index)
             name = t.Name().decode('utf-8')
             dtype = DTYPE_TFLITE2NAME[graph.Tensors(graph.Outputs(0)).Type()]
             shape = t.ShapeAsNumpy()
-            tensor = Tensor(name, shape, dtype)
+            tensor = Tensor(name, shape, dtype, layout=self.layout, src_layout=self.layout)
             tensor.quant = self._parseTensorQuantParam(index)
             return tensor
 
@@ -107,7 +106,7 @@ class TFLiteRunner(BaseRunner):
 
         if inputs:
             for i in range(len(inputs)):
-                idata = inputs[i].dataAs('NHWC')
+                idata = inputs[i].dataAs(self.layout)
                 interp.set_tensor(idetails[i]['index'], idata)
 
             interp.invoke()
@@ -121,15 +120,15 @@ class TFLiteRunner(BaseRunner):
             return None
 
 
-def run(path: str, inputs=None):
+def run(path: str, inputs=None, layout='NHWC'):
     """Run TFLite, optionally take/return input/output data (Tensor list)."""
-    runner = TFLiteRunner(path)
+    runner = TFLiteRunner(path, layout)
     return runner.run(inputs)
 
 
-def parse(path: str):
+def parse(path: str, layout='NHWC'):
     """ Load TFLite model, and build a `Modole` object from it."""
-    runner = TFLiteRunner(path)
+    runner = TFLiteRunner(path, layout)
     return runner.parse()
 
 

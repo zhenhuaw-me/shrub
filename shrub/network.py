@@ -35,7 +35,7 @@ class Tensor:
                  dtype: str,
                  quantized: bool = False,
                  layout='NHWC',
-                 src_layout='NHWC',
+                 src_layout=None,
                  ndarray=None):
         self.name = name
         self.dtype = dtype
@@ -51,10 +51,7 @@ class Tensor:
 
     def dataAs(self, layout: str):
         """Obtain data with given layout, transform automatically."""
-        if (len(self.ndarray.shape) != len(self.layout)):
-            return self.ndarray
-        else:
-            return transform(self.ndarray, self.layout, layout)
+        return transform(self.ndarray, self.layout, layout)
 
     def setData(self, ndarray, layout):
         self.ndarray = transform(ndarray, layout, self.layout)
@@ -108,14 +105,14 @@ class Tensor:
                 low=-1, high=1, size=self.shape).astype(self.dtype)
 
 
-def cmpTensors(t1, t2, atol=1e-5, rtol=1e-5):
+def cmpTensors(t1, t2, atol=1e-5, rtol=1e-5, useLayout=None):
     """Compare Tensor list data"""
     assert (len(t1) == len(t2))
     for i in range(len(t2)):
-        dt1 = t1[i].dataAs('NHWC')
-        dt2 = t2[i].dataAs('NHWC')
-        # if np.issubdtype(dt1.dtype, np.integer):
-        #     atol = 1
+        if (useLayout is None):
+            assert(t1[i].layout == t2[i].layout)
+        dt1 = t1[i].dataAs(useLayout)
+        dt2 = t2[i].dataAs(useLayout)
         if not np.allclose(dt1, dt2, atol=atol, rtol=rtol):
             logger.error("Tensor %d mismatch!" % i)
             return False
@@ -175,7 +172,7 @@ class Model:
                                           'input.' + str(i) + '.txt',
                                           self.inputs[i].dtype)
 
-    def store(self, ttype: str):
+    def store(self, ttype: str, useLayout=None):
         """Store inputs/outputs to file named as `{ttype}.{number}.txt'.
 
         These files are expected to been read by the `loadInput` interface.
@@ -184,10 +181,7 @@ class Model:
         tensors = self.getTensors(ttype)
         for i in range(0, len(tensors)):
             tensor = tensors[i]
-            if self.layout == 'NCHW':
-                ndarray = nchw2nhwc(tensor.ndarray)
-            elif self.layout == 'NHWC':
-                ndarray = tensor.ndarray
+            ndarray = tensor.dataAs(useLayout)
             store(ndarray, ttype + '.' + str(i) + '.txt')
 
     def clear(self):
@@ -196,7 +190,10 @@ class Model:
 
 
 def transform(shape_or_ndarray, srcLayout: str, targetLayout: str):
-    assert(len(srcLayout) == len(targetLayout))
+    if (srcLayout is None or targetLayout is None):
+        return shape_or_ndarray
+    if (len(srcLayout) != len(targetLayout)):
+        return shape_or_ndarray
     if (srcLayout == targetLayout):
         return shape_or_ndarray
 
@@ -213,6 +210,8 @@ def transform(shape_or_ndarray, srcLayout: str, targetLayout: str):
         return [shape[p] for p in perm]
     elif isinstance(shape_or_ndarray, np.ndarray):
         nda = shape_or_ndarray
+        if (len(nda.shape) != len(srcLayout)):
+            return nda
         return nda.transpose(perm)
     else:
         assert(False)
