@@ -6,7 +6,7 @@ pdoc
 pillow
 pytest
 setuptools
-tensorflow
+tensorflow>=2.0.0
 tflite
 twine
 wheel
