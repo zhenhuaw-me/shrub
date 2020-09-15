@@ -10,7 +10,7 @@ from shrub import util  # noqa: F401
 
 # package metadata
 NAME = 'shrub'
-VERSION = '0.0.2.post5'
-DESCRIPTION = "Toys to play around with machine learning"
+VERSION = '0.0.2.post6'
+DESCRIPTION = "Better Experience of Developping Deep Learning Systems"
 LICENSE = 'Apache License Version 2.0'
 __version__ = VERSION

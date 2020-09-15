@@ -1,5 +1,5 @@
-Shrub - Better Experience of Developping Deep Learning System
-=============================================================
+Shrub - Better Experience of Developping Deep Learning Systems
+==============================================================
 
 ![Build and Test](https://github.com/jackwish/shrub/workflows/Build%20and%20Test/badge.svg)
 ![Sanity](https://github.com/jackwish/shrub/workflows/Sanity/badge.svg)
