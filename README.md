@@ -1,8 +1,9 @@
 Shrub - Better Experience of Developping Deep Learning Systems
 ==============================================================
 
-![Build and Test](https://github.com/jackwish/shrub/workflows/Build%20and%20Test/badge.svg)
-![Sanity](https://github.com/jackwish/shrub/workflows/Sanity/badge.svg)
+[![Build and Test](https://github.com/jackwish/shrub/workflows/Build%20and%20Test/badge.svg)](https://github.com/jackwish/shrub/actions?query=workflow%3A%22Build+and+Test%22)
+[![Sanity](https://github.com/jackwish/shrub/workflows/Sanity/badge.svg)](https://github.com/jackwish/shrub/actions?query=workflow%3ASanity)
+[![Coverage](https://codecov.io/gh/jackwish/shrub/branch/master/graph/badge.svg)](https://codecov.io/gh/jackwish/shrub)
 
 
 Have you been tired of writing similar testing code for your deep learning system?
