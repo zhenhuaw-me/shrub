@@ -1,22 +1,22 @@
-name: Build and Test
+name: Coverage Report
 
 on: [push, pull_request]
 
 jobs:
 
-  test:
-    name: Build and Test
+  coverage:
+    name: Coverage report
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 4
+      max-parallel: 1
       matrix:
-        python-version: [3.5, 3.6, 3.7]
+        python-version: [3.7]
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -32,5 +32,13 @@ jobs:
     - name: Install package
       run: pip install -U assets/dist/shrub-*.whl
 
-    - name: Testing
-      run: pytest
+    - name: Collecting coverage data)
+      run: coverage run --source=./shrub -m pytest
+
+    - name: Uploading coverage report
+      continue-on-error: true
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      run: |
+        coverage xml
+        bash <(curl -s https://codecov.io/bash)
