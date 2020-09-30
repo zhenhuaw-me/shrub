@@ -852,8 +852,13 @@ table {
   </style>
 
   <style type="text/css">
-  .codehilite .hll { background-color: #ffffcc }
-.codehilite  { background: #f8f8f8; }
+  pre { line-height: 125%; margin: 0; }
+td.linenos pre { color: #000000; background-color: #f0f0f0; padding: 0 5px 0 5px; }
+span.linenos { color: #000000; background-color: #f0f0f0; padding: 0 5px 0 5px; }
+td.linenos pre.special { color: #000000; background-color: #ffffc0; padding: 0 5px 0 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding: 0 5px 0 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f8f8f8; }
 .codehilite .c { color: #408080; font-style: italic } /* Comment */
 .codehilite .err { border: 1px solid #FF0000 } /* Error */
 .codehilite .k { color: #008000; font-weight: bold } /* Keyword */
@@ -1098,15 +1103,7 @@ table {
 
 
 <span class="k">class</span> <span class="nc">ONNXRunner</span><span class="p">(</span><span class="n">BaseRunner</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">layout</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;NCHW&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Runner for ONNX model</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        path: path to ONNX model.</span>
-<span class="sd">        layout: the input output layout of the model.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">layout</span>
+    <span class="n">DefaultLayout</span> <span class="o">=</span> <span class="s1">&#39;NCHW&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">quantized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1292,15 +1289,7 @@ layout: the input output layout of the model.</p></div>
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.onnx.ONNXRunner', this);">Show source &equiv;</a></p>
   <div id="source-shrub.onnx.ONNXRunner" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ONNXRunner</span><span class="p">(</span><span class="n">BaseRunner</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">layout</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;NCHW&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Runner for ONNX model</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        path: path to ONNX model.</span>
-<span class="sd">        layout: the input output layout of the model.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">layout</span>
+    <span class="n">DefaultLayout</span> <span class="o">=</span> <span class="s1">&#39;NCHW&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">quantized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1381,31 +1370,43 @@ layout: the input output layout of the model.</p></div>
           <li>shrub.common.BaseRunner</li>
           <li>builtins.object</li>
           </ul>
+          <h3>Class variables</h3>
+            <div class="item">
+            <p id="shrub.onnx.ONNXRunner.DefaultLayout" class="name">var <span class="ident">DefaultLayout</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
           <h3>Static methods</h3>
             
   <div class="item">
     <div class="name def" id="shrub.onnx.ONNXRunner.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, path, layout=&#39;NCHW&#39;)</p>
+    <p>def <span class="ident">__init__</span>(</p><p>self, path, layout=None)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Runner for ONNX model</p>
+    <div class="desc"><p>Runner for SOME model</p>
 <p>Parameters
-path: path to ONNX model.
+path: path to SOME model.
 layout: the input output layout of the model.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.onnx.ONNXRunner.__init__', this);">Show source &equiv;</a></p>
   <div id="source-shrub.onnx.ONNXRunner.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">layout</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;NCHW&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Runner for ONNX model</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Runner for SOME model</span>
 <span class="sd">    Parameters</span>
-<span class="sd">    path: path to ONNX model.</span>
+<span class="sd">    path: path to SOME model.</span>
 <span class="sd">    layout: the input output layout of the model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">layout</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DefaultLayout</span> <span class="k">if</span> <span class="n">layout</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">layout</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
   </div>
@@ -1508,16 +1509,6 @@ inputs: A list of Tensors. If no, generate random inputs.</p></div>
   </div>
   
           <h3>Instance variables</h3>
-            <div class="item">
-            <p id="shrub.onnx.ONNXRunner.layout" class="name">var <span class="ident">layout</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
             <div class="item">
             <p id="shrub.onnx.ONNXRunner.quantized" class="name">var <span class="ident">quantized</span></p>
             

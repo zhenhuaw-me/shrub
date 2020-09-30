@@ -852,8 +852,13 @@ table {
   </style>
 
   <style type="text/css">
-  .codehilite .hll { background-color: #ffffcc }
-.codehilite  { background: #f8f8f8; }
+  pre { line-height: 125%; margin: 0; }
+td.linenos pre { color: #000000; background-color: #f0f0f0; padding: 0 5px 0 5px; }
+span.linenos { color: #000000; background-color: #f0f0f0; padding: 0 5px 0 5px; }
+td.linenos pre.special { color: #000000; background-color: #ffffc0; padding: 0 5px 0 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding: 0 5px 0 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f8f8f8; }
 .codehilite .c { color: #408080; font-style: italic } /* Comment */
 .codehilite .err { border: 1px solid #FF0000 } /* Error */
 .codehilite .k { color: #008000; font-weight: bold } /* Keyword */
@@ -1053,11 +1058,6 @@ table {
   <ul>
     <li class="mono"><a href="#shrub.network.cmpTensors">cmpTensors</a></li>
     <li class="mono"><a href="#shrub.network.load">load</a></li>
-    <li class="mono"><a href="#shrub.network.loadImage">loadImage</a></li>
-    <li class="mono"><a href="#shrub.network.nchw2nhwc">nchw2nhwc</a></li>
-    <li class="mono"><a href="#shrub.network.nhwc2nchw">nhwc2nchw</a></li>
-    <li class="mono"><a href="#shrub.network.oihw2hwoi">oihw2hwoi</a></li>
-    <li class="mono"><a href="#shrub.network.plot">plot</a></li>
     <li class="mono"><a href="#shrub.network.store">store</a></li>
     <li class="mono"><a href="#shrub.network.transform">transform</a></li>
   </ul>
@@ -1165,7 +1165,7 @@ table {
                  <span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                  <span class="n">quantized</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                  <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;NHWC&#39;</span><span class="p">,</span>
-                 <span class="n">src_layout</span><span class="o">=</span><span class="s1">&#39;NHWC&#39;</span><span class="p">,</span>
+                 <span class="n">src_layout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ndarray</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
@@ -1181,10 +1181,7 @@ table {
 
     <span class="k">def</span> <span class="nf">dataAs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Obtain data with given layout, transform automatically.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">setData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">layout</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
@@ -1238,14 +1235,14 @@ table {
                 <span class="n">low</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">cmpTensors</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">cmpTensors</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">useLayout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compare Tensor list data&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">t2</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t2</span><span class="p">)):</span>
-        <span class="n">dt1</span> <span class="o">=</span> <span class="n">t1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dataAs</span><span class="p">(</span><span class="s1">&#39;NHWC&#39;</span><span class="p">)</span>
-        <span class="n">dt2</span> <span class="o">=</span> <span class="n">t2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dataAs</span><span class="p">(</span><span class="s1">&#39;NHWC&#39;</span><span class="p">)</span>
-        <span class="c1"># if np.issubdtype(dt1.dtype, np.integer):</span>
-        <span class="c1">#     atol = 1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">useLayout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">assert</span><span class="p">(</span><span class="n">t1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">layout</span> <span class="o">==</span> <span class="n">t2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
+        <span class="n">dt1</span> <span class="o">=</span> <span class="n">t1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dataAs</span><span class="p">(</span><span class="n">useLayout</span><span class="p">)</span>
+        <span class="n">dt2</span> <span class="o">=</span> <span class="n">t2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dataAs</span><span class="p">(</span><span class="n">useLayout</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">dt1</span><span class="p">,</span> <span class="n">dt2</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Tensor </span><span class="si">%d</span><span class="s2"> mismatch!&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -1305,7 +1302,7 @@ table {
                                           <span class="s1">&#39;input.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">,</span>
                                           <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ttype</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ttype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">useLayout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Store inputs/outputs to file named as `{ttype}.{number}.txt&#39;.</span>
 
 <span class="sd">        These files are expected to been read by the `loadInput` interface.</span>
@@ -1314,10 +1311,7 @@ table {
         <span class="n">tensors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTensors</span><span class="p">(</span><span class="n">ttype</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tensors</span><span class="p">)):</span>
             <span class="n">tensor</span> <span class="o">=</span> <span class="n">tensors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">==</span> <span class="s1">&#39;NCHW&#39;</span><span class="p">:</span>
-                <span class="n">ndarray</span> <span class="o">=</span> <span class="n">nchw2nhwc</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">==</span> <span class="s1">&#39;NHWC&#39;</span><span class="p">:</span>
-                <span class="n">ndarray</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">ndarray</span>
+            <span class="n">ndarray</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">dataAs</span><span class="p">(</span><span class="n">useLayout</span><span class="p">)</span>
             <span class="n">store</span><span class="p">(</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ttype</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1326,7 +1320,10 @@ table {
 
 
 <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="n">srcLayout</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">targetLayout</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">srcLayout</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">targetLayout</span><span class="p">))</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">srcLayout</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">targetLayout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">shape_or_ndarray</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">srcLayout</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">targetLayout</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">shape_or_ndarray</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">srcLayout</span> <span class="o">==</span> <span class="n">targetLayout</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">shape_or_ndarray</span>
 
@@ -1343,51 +1340,12 @@ table {
         <span class="k">return</span> <span class="p">[</span><span class="n">shape</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">]</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="n">nda</span> <span class="o">=</span> <span class="n">shape_or_ndarray</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">srcLayout</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">nda</span>
         <span class="k">return</span> <span class="n">nda</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">assert</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
-
-
-<span class="k">def</span> <span class="nf">nhwc2nchw</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-        <span class="n">shape</span> <span class="o">=</span> <span class="n">shape_or_ndarray</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">shape</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">nda</span> <span class="o">=</span> <span class="n">shape_or_ndarray</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">nda</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">nda</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">shape_or_ndarray</span>
-
-
-<span class="k">def</span> <span class="nf">nchw2nhwc</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-        <span class="n">shape</span> <span class="o">=</span> <span class="n">shape_or_ndarray</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">shape</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">nda</span> <span class="o">=</span> <span class="n">shape_or_ndarray</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">nda</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">nda</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">shape_or_ndarray</span>
-
-
-<span class="k">def</span> <span class="nf">oihw2hwoi</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;oihw2hwoi requires 4D shape&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">shape</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 
 <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
@@ -1403,6 +1361,9 @@ table {
     <span class="c1"># caller shall handle layout transform</span>
     <span class="c1"># image?</span>
     <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.jpg&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.png&#39;</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">loadImage</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+            <span class="kn">import</span> <span class="nn">imageio</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">imageio</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
         <span class="n">loaded</span> <span class="o">=</span> <span class="n">loadImage</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">!=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="ow">or</span> \
            <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">shape</span> <span class="o">!=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
@@ -1415,76 +1376,6 @@ table {
     <span class="n">loaded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
     <span class="n">loaded</span> <span class="o">=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">loaded</span>
-
-
-<span class="k">def</span> <span class="nf">loadImage</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">imageio</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">imageio</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
-
-
-<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">figure_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tensor_count</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-    <span class="kn">from</span> <span class="nn">tensorflow.python.platform</span> <span class="kn">import</span> <span class="n">gfile</span>
-    <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">tensor_util</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-    <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
-    <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">suppressStdout</span><span class="p">,</span> <span class="n">suppressLogging</span>
-
-    <span class="k">class</span> <span class="nc">Weights</span><span class="p">:</span>
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">ndarray</span>
-
-    <span class="k">def</span> <span class="nf">_getValuableWeights</span><span class="p">(</span><span class="n">pb_path</span><span class="p">,</span> <span class="n">tensor_count</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-        <span class="c1"># load all weights</span>
-        <span class="k">with</span> <span class="n">suppressStdout</span><span class="p">(),</span> <span class="n">suppressLogging</span><span class="p">():</span>
-            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">gfile</span><span class="o">.</span><span class="n">FastGFile</span><span class="p">(</span><span class="n">pb_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">graph_def</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">GraphDef</span><span class="p">()</span>
-                    <span class="n">graph_def</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-                    <span class="n">sess</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">as_default</span><span class="p">()</span>
-                    <span class="n">tf</span><span class="o">.</span><span class="n">import_graph_def</span><span class="p">(</span><span class="n">graph_def</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                    <span class="n">graph_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">graph_def</span><span class="o">.</span><span class="n">node</span><span class="p">]</span>
-
-        <span class="c1"># select 10- weight tensors with most values</span>
-        <span class="n">threshold</span> <span class="o">=</span> <span class="mi">1024</span>
-        <span class="n">selected</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">graph_nodes</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="s1">&#39;Const&#39;</span><span class="p">]</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">:</span>
-                <span class="n">v</span> <span class="o">=</span> <span class="n">tensor_util</span><span class="o">.</span><span class="n">MakeNdarray</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tensor</span><span class="p">)</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">):</span>
-                    <span class="n">selected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Weights</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tensor_count</span><span class="p">):</span>
-                <span class="n">threshold</span> <span class="o">*=</span> <span class="mi">2</span>
-                <span class="n">selected</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">break</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selected </span><span class="si">%d</span><span class="s2"> weight tensor from </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
-              <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">),</span> <span class="n">model_path</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">selected</span>
-
-    <span class="k">def</span> <span class="nf">_plotDistribution</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">figure_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">:</span>
-            <span class="n">wv</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
-            <span class="n">sns</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">wv</span><span class="p">,</span>
-                         <span class="n">hist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                         <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                         <span class="n">kde_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
-                         <span class="n">label</span><span class="o">=</span><span class="n">w</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">})</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Value Distribution of Selected Tensors&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">figure_path</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">figure_path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-    <span class="n">weights</span> <span class="o">=</span> <span class="n">_getValuableWeights</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">tensor_count</span><span class="p">)</span>
-    <span class="n">_plotDistribution</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">figure_path</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1506,7 +1397,7 @@ table {
       
   <div class="item">
     <div class="name def" id="shrub.network.cmpTensors">
-    <p>def <span class="ident">cmpTensors</span>(</p><p>t1, t2, atol=1e-05, rtol=1e-05)</p>
+    <p>def <span class="ident">cmpTensors</span>(</p><p>t1, t2, atol=1e-05, rtol=1e-05, useLayout=None)</p>
     </div>
     
 
@@ -1516,14 +1407,14 @@ table {
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.network.cmpTensors', this);">Show source &equiv;</a></p>
   <div id="source-shrub.network.cmpTensors" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cmpTensors</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cmpTensors</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">useLayout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compare Tensor list data&quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">t2</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t2</span><span class="p">)):</span>
-        <span class="n">dt1</span> <span class="o">=</span> <span class="n">t1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dataAs</span><span class="p">(</span><span class="s1">&#39;NHWC&#39;</span><span class="p">)</span>
-        <span class="n">dt2</span> <span class="o">=</span> <span class="n">t2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dataAs</span><span class="p">(</span><span class="s1">&#39;NHWC&#39;</span><span class="p">)</span>
-        <span class="c1"># if np.issubdtype(dt1.dtype, np.integer):</span>
-        <span class="c1">#     atol = 1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">useLayout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">assert</span><span class="p">(</span><span class="n">t1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">layout</span> <span class="o">==</span> <span class="n">t2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
+        <span class="n">dt1</span> <span class="o">=</span> <span class="n">t1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dataAs</span><span class="p">(</span><span class="n">useLayout</span><span class="p">)</span>
+        <span class="n">dt2</span> <span class="o">=</span> <span class="n">t2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dataAs</span><span class="p">(</span><span class="n">useLayout</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">dt1</span><span class="p">,</span> <span class="n">dt2</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Tensor </span><span class="si">%d</span><span class="s2"> mismatch!&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -1551,6 +1442,9 @@ table {
     <span class="c1"># caller shall handle layout transform</span>
     <span class="c1"># image?</span>
     <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.jpg&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.png&#39;</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">loadImage</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+            <span class="kn">import</span> <span class="nn">imageio</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">imageio</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
         <span class="n">loaded</span> <span class="o">=</span> <span class="n">loadImage</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">!=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="ow">or</span> \
            <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">shape</span> <span class="o">!=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
@@ -1563,202 +1457,6 @@ table {
     <span class="n">loaded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
     <span class="n">loaded</span> <span class="o">=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">loaded</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="shrub.network.loadImage">
-    <p>def <span class="ident">loadImage</span>(</p><p>fname)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.network.loadImage', this);">Show source &equiv;</a></p>
-  <div id="source-shrub.network.loadImage" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">loadImage</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">imageio</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">imageio</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="shrub.network.nchw2nhwc">
-    <p>def <span class="ident">nchw2nhwc</span>(</p><p>shape_or_ndarray)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.network.nchw2nhwc', this);">Show source &equiv;</a></p>
-  <div id="source-shrub.network.nchw2nhwc" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">nchw2nhwc</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-        <span class="n">shape</span> <span class="o">=</span> <span class="n">shape_or_ndarray</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">shape</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">nda</span> <span class="o">=</span> <span class="n">shape_or_ndarray</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">nda</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">nda</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">shape_or_ndarray</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="shrub.network.nhwc2nchw">
-    <p>def <span class="ident">nhwc2nchw</span>(</p><p>shape_or_ndarray)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.network.nhwc2nchw', this);">Show source &equiv;</a></p>
-  <div id="source-shrub.network.nhwc2nchw" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">nhwc2nchw</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-        <span class="n">shape</span> <span class="o">=</span> <span class="n">shape_or_ndarray</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">shape</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">nda</span> <span class="o">=</span> <span class="n">shape_or_ndarray</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">nda</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">nda</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">shape_or_ndarray</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="shrub.network.oihw2hwoi">
-    <p>def <span class="ident">oihw2hwoi</span>(</p><p>shape)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.network.oihw2hwoi', this);">Show source &equiv;</a></p>
-  <div id="source-shrub.network.oihw2hwoi" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">oihw2hwoi</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;oihw2hwoi requires 4D shape&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">shape</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="shrub.network.plot">
-    <p>def <span class="ident">plot</span>(</p><p>model_path, figure_path=None, tensor_count=10)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.network.plot', this);">Show source &equiv;</a></p>
-  <div id="source-shrub.network.plot" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">figure_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tensor_count</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-    <span class="kn">from</span> <span class="nn">tensorflow.python.platform</span> <span class="kn">import</span> <span class="n">gfile</span>
-    <span class="kn">from</span> <span class="nn">tensorflow.python.framework</span> <span class="kn">import</span> <span class="n">tensor_util</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-    <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
-    <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">suppressStdout</span><span class="p">,</span> <span class="n">suppressLogging</span>
-
-    <span class="k">class</span> <span class="nc">Weights</span><span class="p">:</span>
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">ndarray</span>
-
-    <span class="k">def</span> <span class="nf">_getValuableWeights</span><span class="p">(</span><span class="n">pb_path</span><span class="p">,</span> <span class="n">tensor_count</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-        <span class="c1"># load all weights</span>
-        <span class="k">with</span> <span class="n">suppressStdout</span><span class="p">(),</span> <span class="n">suppressLogging</span><span class="p">():</span>
-            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">gfile</span><span class="o">.</span><span class="n">FastGFile</span><span class="p">(</span><span class="n">pb_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">graph_def</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">GraphDef</span><span class="p">()</span>
-                    <span class="n">graph_def</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-                    <span class="n">sess</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">as_default</span><span class="p">()</span>
-                    <span class="n">tf</span><span class="o">.</span><span class="n">import_graph_def</span><span class="p">(</span><span class="n">graph_def</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                    <span class="n">graph_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">graph_def</span><span class="o">.</span><span class="n">node</span><span class="p">]</span>
-
-        <span class="c1"># select 10- weight tensors with most values</span>
-        <span class="n">threshold</span> <span class="o">=</span> <span class="mi">1024</span>
-        <span class="n">selected</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">graph_nodes</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">op</span> <span class="o">==</span> <span class="s1">&#39;Const&#39;</span><span class="p">]</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">:</span>
-                <span class="n">v</span> <span class="o">=</span> <span class="n">tensor_util</span><span class="o">.</span><span class="n">MakeNdarray</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tensor</span><span class="p">)</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">):</span>
-                    <span class="n">selected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Weights</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tensor_count</span><span class="p">):</span>
-                <span class="n">threshold</span> <span class="o">*=</span> <span class="mi">2</span>
-                <span class="n">selected</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">break</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selected </span><span class="si">%d</span><span class="s2"> weight tensor from </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
-              <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">),</span> <span class="n">model_path</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">selected</span>
-
-    <span class="k">def</span> <span class="nf">_plotDistribution</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">figure_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">:</span>
-            <span class="n">wv</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
-            <span class="n">sns</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">wv</span><span class="p">,</span>
-                         <span class="n">hist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                         <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                         <span class="n">kde_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;linewidth&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
-                         <span class="n">label</span><span class="o">=</span><span class="n">w</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
-        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">})</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Value Distribution of Selected Tensors&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">figure_path</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">figure_path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-    <span class="n">weights</span> <span class="o">=</span> <span class="n">_getValuableWeights</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">tensor_count</span><span class="p">)</span>
-    <span class="n">_plotDistribution</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">figure_path</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1805,7 +1503,10 @@ table {
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.network.transform', this);">Show source &equiv;</a></p>
   <div id="source-shrub.network.transform" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="n">srcLayout</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">targetLayout</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">srcLayout</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">targetLayout</span><span class="p">))</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">srcLayout</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">targetLayout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">shape_or_ndarray</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">srcLayout</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">targetLayout</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">shape_or_ndarray</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">srcLayout</span> <span class="o">==</span> <span class="n">targetLayout</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">shape_or_ndarray</span>
 
@@ -1822,6 +1523,8 @@ table {
         <span class="k">return</span> <span class="p">[</span><span class="n">shape</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">]</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape_or_ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="n">nda</span> <span class="o">=</span> <span class="n">shape_or_ndarray</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">srcLayout</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">nda</span>
         <span class="k">return</span> <span class="n">nda</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">assert</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
@@ -1898,7 +1601,7 @@ table {
                                           <span class="s1">&#39;input.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">,</span>
                                           <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ttype</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ttype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">useLayout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Store inputs/outputs to file named as `{ttype}.{number}.txt&#39;.</span>
 
 <span class="sd">        These files are expected to been read by the `loadInput` interface.</span>
@@ -1907,10 +1610,7 @@ table {
         <span class="n">tensors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTensors</span><span class="p">(</span><span class="n">ttype</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tensors</span><span class="p">)):</span>
             <span class="n">tensor</span> <span class="o">=</span> <span class="n">tensors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">==</span> <span class="s1">&#39;NCHW&#39;</span><span class="p">:</span>
-                <span class="n">ndarray</span> <span class="o">=</span> <span class="n">nchw2nhwc</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">==</span> <span class="s1">&#39;NHWC&#39;</span><span class="p">:</span>
-                <span class="n">ndarray</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">ndarray</span>
+            <span class="n">ndarray</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">dataAs</span><span class="p">(</span><span class="n">useLayout</span><span class="p">)</span>
             <span class="n">store</span><span class="p">(</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ttype</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2112,7 +1812,7 @@ table {
             
   <div class="item">
     <div class="name def" id="shrub.network.Model.store">
-    <p>def <span class="ident">store</span>(</p><p>self, ttype)</p>
+    <p>def <span class="ident">store</span>(</p><p>self, ttype, useLayout=None)</p>
     </div>
     
 
@@ -2124,7 +1824,7 @@ Or for comparation.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub.network.Model.store', this);">Show source &equiv;</a></p>
   <div id="source-shrub.network.Model.store" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ttype</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ttype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">useLayout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Store inputs/outputs to file named as `{ttype}.{number}.txt&#39;.</span>
 <span class="sd">    These files are expected to been read by the `loadInput` interface.</span>
 <span class="sd">    Or for comparation.</span>
@@ -2132,10 +1832,7 @@ Or for comparation.</p></div>
     <span class="n">tensors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getTensors</span><span class="p">(</span><span class="n">ttype</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tensors</span><span class="p">)):</span>
         <span class="n">tensor</span> <span class="o">=</span> <span class="n">tensors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">==</span> <span class="s1">&#39;NCHW&#39;</span><span class="p">:</span>
-            <span class="n">ndarray</span> <span class="o">=</span> <span class="n">nchw2nhwc</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span> <span class="o">==</span> <span class="s1">&#39;NHWC&#39;</span><span class="p">:</span>
-            <span class="n">ndarray</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">ndarray</span>
+        <span class="n">ndarray</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">dataAs</span><span class="p">(</span><span class="n">useLayout</span><span class="p">)</span>
         <span class="n">store</span><span class="p">(</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ttype</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
 </pre></div>
 
@@ -2319,7 +2016,7 @@ Or for comparation.</p></div>
                  <span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                  <span class="n">quantized</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                  <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;NHWC&#39;</span><span class="p">,</span>
-                 <span class="n">src_layout</span><span class="o">=</span><span class="s1">&#39;NHWC&#39;</span><span class="p">,</span>
+                 <span class="n">src_layout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">ndarray</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
@@ -2335,10 +2032,7 @@ Or for comparation.</p></div>
 
     <span class="k">def</span> <span class="nf">dataAs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Obtain data with given layout, transform automatically.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">setData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">layout</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">layout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)</span>
@@ -2406,7 +2100,7 @@ Or for comparation.</p></div>
             
   <div class="item">
     <div class="name def" id="shrub.network.Tensor.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, name, shape, dtype, quantized=False, layout=&#39;NHWC&#39;, src_layout=&#39;NHWC&#39;, ndarray=None)</p>
+    <p>def <span class="ident">__init__</span>(</p><p>self, name, shape, dtype, quantized=False, layout=&#39;NHWC&#39;, src_layout=None, ndarray=None)</p>
     </div>
     
 
@@ -2422,7 +2116,7 @@ Or for comparation.</p></div>
              <span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
              <span class="n">quantized</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
              <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;NHWC&#39;</span><span class="p">,</span>
-             <span class="n">src_layout</span><span class="o">=</span><span class="s1">&#39;NHWC&#39;</span><span class="p">,</span>
+             <span class="n">src_layout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">ndarray</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
@@ -2452,10 +2146,7 @@ Or for comparation.</p></div>
   <div id="source-shrub.network.Tensor.dataAs" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dataAs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Obtain data with given layout, transform automatically.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">)):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layout</span><span class="p">,</span> <span class="n">layout</span><span class="p">)</span>
 </pre></div>
 
   </div>

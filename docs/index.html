@@ -852,8 +852,13 @@ table {
   </style>
 
   <style type="text/css">
-  .codehilite .hll { background-color: #ffffcc }
-.codehilite  { background: #f8f8f8; }
+  pre { line-height: 125%; margin: 0; }
+td.linenos pre { color: #000000; background-color: #f0f0f0; padding: 0 5px 0 5px; }
+span.linenos { color: #000000; background-color: #f0f0f0; padding: 0 5px 0 5px; }
+td.linenos pre.special { color: #000000; background-color: #ffffc0; padding: 0 5px 0 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding: 0 5px 0 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f8f8f8; }
 .codehilite .c { color: #408080; font-style: italic } /* Comment */
 .codehilite .err { border: 1px solid #FF0000 } /* Error */
 .codehilite .k { color: #008000; font-weight: bold } /* Keyword */
@@ -1080,20 +1085,20 @@ table {
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-shrub', this);">Show source &equiv;</a></p>
   <div id="source-shrub" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">network</span>
-<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">onnx</span>
-<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">tflite</span>
-<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">mapping</span>
-<span class="kn">from</span> <span class="nn">shrub.tflite</span> <span class="kn">import</span> <span class="n">TFLiteRunner</span>
-<span class="kn">from</span> <span class="nn">shrub.onnx</span> <span class="kn">import</span> <span class="n">ONNXRunner</span>
-<span class="kn">from</span> <span class="nn">shrub.predict</span> <span class="kn">import</span> <span class="n">Classifier</span>
-<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">util</span>
+    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">network</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">onnx</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">tflite</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">mapping</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span> <span class="nn">shrub.tflite</span> <span class="kn">import</span> <span class="n">TFLiteRunner</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span> <span class="nn">shrub.onnx</span> <span class="kn">import</span> <span class="n">ONNXRunner</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span> <span class="nn">shrub.predict</span> <span class="kn">import</span> <span class="n">Classifier</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span> <span class="nn">shrub</span> <span class="kn">import</span> <span class="n">util</span>  <span class="c1"># noqa: F401</span>
 
 
 <span class="c1"># package metadata</span>
 <span class="n">NAME</span> <span class="o">=</span> <span class="s1">&#39;shrub&#39;</span>
-<span class="n">VERSION</span> <span class="o">=</span> <span class="s1">&#39;0.0.2.post5&#39;</span>
-<span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Toys to play around with machine learning&quot;</span>
+<span class="n">VERSION</span> <span class="o">=</span> <span class="s1">&#39;0.0.3&#39;</span>
+<span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="s2">&quot;Better Experience of Developping Deep Learning Systems&quot;</span>
 <span class="n">LICENSE</span> <span class="o">=</span> <span class="s1">&#39;Apache License Version 2.0&#39;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="n">VERSION</span>
 </pre></div>
