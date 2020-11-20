@@ -1,52 +1,32 @@
-import os
+import tensorflow as tf
 import numpy as np
 
-import tensorflow as tf
-from tensorflow.python.platform import gfile
-from tensorflow.core.framework import graph_pb2
-from tensorflow.python.framework import graph_util
+ISHAPE = (1, 2, 3, 4)
+OSHAPE = (int(np.product(ISHAPE)),)
 
 
-class OpChecker:
-    def __init__(self, ishape, oshape):
-        # args in TensorFlow style
-        self.name = 'reshape'
-        self.ishape = ishape
-        self.oshape = oshape
-        self.iname = 'input'
-        self.oname = 'output'
-        self.dtype = tf.float32
+def genWithKeras():
+  data = tf.keras.Input(dtype='float32', name='input', batch_size=ISHAPE[0], shape=ISHAPE[1:])
+  reshape = tf.keras.layers.Reshape(OSHAPE, name='reshaped')(data)
+  model = tf.keras.Model(inputs=[data], outputs=[reshape])
+  return tf.lite.TFLiteConverter.from_keras_model(model)
 
-    def genModels(self):
-        print("Generating Models...")
-        with tf.Session(graph=tf.Graph()) as sess:
-            data = tf.placeholder(self.dtype, shape=self.ishape, name=self.iname)
-            shape = tf.shape(data)
-            shape_sliced = tf.strided_slice(shape, [0,], [1,], strides=[1,], shrink_axis_mask=1)
-            shape_stacked = tf.stack([shape_sliced, -1])
-            output = tf.reshape(data, shape_stacked, name=self.oname)
-            # output = tf.reshape(data, self.oshape, name=self.oname)
-            sess.run(tf.global_variables_initializer())
-            constant_graph = graph_util.convert_variables_to_constants(
-                sess, sess.graph_def, [self.oname])
-            with tf.gfile.FastGFile(self.name + ".pb", mode='wb') as f:
-                f.write(constant_graph.SerializeToString())
 
-    def genTFLiteModel(self):
-        print("Generating TensorFlow Lite model...")
-        converter = tf.lite.TFLiteConverter.from_frozen_graph(
-            self.name + ".pb",
-            input_arrays=[self.iname],
-            output_arrays=[self.oname, ])
+def genWithTFModel():
+  class ReshapeModule(tf.Module):
+    def __init__(self):
+      super(ReshapeModule, self).__init__()
 
-        tflite_model = converter.convert()
-        open(self.name + ".tflite", "wb").write(tflite_model)
+    @tf.function(input_signature=[tf.TensorSpec(ISHAPE, tf.float32)])
+    def __call__(self, data):
+      return tf.reshape(data, OSHAPE)
 
-def test_OP():
-    input_shape = (None, 1, 1, 5)  # NHWC
-    new_shape = (5,)
-    op = OpChecker(input_shape, new_shape)
-    op.genModels()
-    op.genTFLiteModel()
+  module = ReshapeModule()
+  tf.saved_model.save(module, 'reshape.saved_model')
+  return tf.lite.TFLiteConverter.from_saved_model('reshape.saved_model')
 
-test_OP()
+converter = genWithKeras()
+# converter = genWithTFModel()
+tflite_model = converter.convert()
+with open('model.tflite', 'wb') as f:
+  f.write(tflite_model)
