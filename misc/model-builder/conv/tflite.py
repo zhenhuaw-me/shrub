@@ -12,9 +12,11 @@ conv = tf.keras.layers.Conv2D(OC, KHW, strides=strides, padding='same', data_for
 
 model = tf.keras.Model(inputs=[data], outputs=[conv])
 
-# converter = tf.lite.TFLiteConverter.from_keras_model(model)
-converter = tf.compat.v1.TFLiteConverter.from_keras_model(model)
-converter.inference_type = tf.lite.constants.QUANTIZED_UINT8
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+# converter = tf.compat.v1.TFLiteConverter.from_keras_model(model)
+# converter.inference_type = tf.lite.constants.QUANTIZED_UINT8
+converter.optimizations = [tf.lite.Optimize.DEFAULT]
+converter.target_spec.supported_types = [tf.float16]
 tflite_model = converter.convert()
 
 

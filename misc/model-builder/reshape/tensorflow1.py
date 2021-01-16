@@ -1,22 +1,28 @@
 import tensorflow as tf
+import numpy as np
 from tensorflow.python.platform import gfile
 from tensorflow.python.framework import graph_util
 
 
+def _conv_layer(input, dtype, fshape, strides, dilation, padding, oname):
+    weights = tf.Variable(np.ones(fshape).astype('float32'), dtype)
+
+
 class OpGenerator:
-    def __init__(self, elementWiseOp, shape, tflite_dtype=tf.float32):
-        self.op = elementWiseOp
-        self.shape = shape
+    def __init__(self, ishape, oshape, tflite_dtype=tf.float32):
+        self.ishape = ishape
+        self.oshape = oshape
         self.tflite_dtype = tflite_dtype
-        self.name = "gen"
+        self.name = "model"
         self.iname = "input"
         self.oname = "output"
 
     def genTensorFlowModel(self):
         print("Generating TensorFlow model...")
         with tf.Session(graph=tf.Graph()) as sess:
-            net = tf.placeholder(self.tflite_dtype, shape=self.shape, name=self.iname)
-            net = self.op(net, name=self.oname)
+            net = tf.placeholder(tf.float32, shape=self.ishape, name=self.iname)
+            net = tf.math.abs(net, 'abs')
+            net = tf.reshape(net, self.oshape, self.oname)
             sess.run(tf.global_variables_initializer())
             constant_graph = graph_util.convert_variables_to_constants(
                 sess, sess.graph_def, [self.oname])
@@ -27,15 +33,8 @@ class OpGenerator:
         print("Generating TensorFlow Lite model...")
         converter = tf.lite.TFLiteConverter.from_frozen_graph(
             self.name + ".pb",
-            input_arrays=[self.iname],
+            input_arrays=[self.iname, ],
             output_arrays=[self.oname, ])
-        # converter.inference_type = self.tflite_dtype
-        # converter.inference_inpute_type = self.tflite_dtype
-        # converter.default_ranges_stats = (0, 6)
-        # converter.quantized_input_stats = {self.iname: (100, 100.0)}
-
-        # converter.post_training_quantize = True
-        # converter.target_ops = set([OpsSet.TFLITE_BUILTINS])
 
         tflite_model = converter.convert()
         open(self.name + ".tflite", "wb").write(tflite_model)
@@ -45,16 +44,11 @@ def genOP():
     print("[START] genOP\n")
     print("TensorFlow: %s" % tf.__version__)
 
-    shape = (1, 2, 3, 4)
+    ISHAPE = (1, 2, 3, 4)
+    OSHAPE = (int(np.product(ISHAPE)),)
+    tflite_dtype = tf.float32
 
-    elementWiseOp = tf.math.abs
-    # elementWiseOp = tf.math.tanh
-
-    tflite_dtype = tf.float16
-    # tflite_dtype = tf.float32
-    # tflite_dtype = tf.int32
-
-    op = OpGenerator(elementWiseOp, shape, tflite_dtype=tflite_dtype)
+    op = OpGenerator(ISHAPE, OSHAPE, tflite_dtype=tflite_dtype)
     op.genTensorFlowModel()
     op.genTFLiteModel()
 
